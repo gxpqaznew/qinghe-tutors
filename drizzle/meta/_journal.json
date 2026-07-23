@@ -8,6 +8,13 @@
       "when": 1784785715478,
       "tag": "0000_nasty_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784848913826,
+      "tag": "0001_high_bruce_banner",
+      "breakpoints": true
     }
   ]
 }

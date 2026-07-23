@@ -1,83 +1,560 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+
+type Role = "parent" | "teacher";
 
 type Teacher = {
-  id: number; name: string; initials: string; role: string; school: string; degree: string;
-  subjects: string[]; rate: number; city: string; experience: string; intro: string;
-  work: string[]; website: string; color: string; verified?: boolean; modes: string[];
+  id: number;
+  name: string;
+  initials: string;
+  title: string;
+  education: string;
+  experience: string;
+  subjects: string[];
+  modes: string[];
+  intro: string;
+  color: string;
+  demoUrl: string;
 };
 
 const teachers: Teacher[] = [
-  { id: 1, name: "陈安然", initials: "陈", role: "小学全科 · 英语启蒙", school: "华东师范大学", degree: "教育学硕士", subjects: ["小学全科", "英语"], rate: 160, city: "上海", experience: "6年经验", intro: "擅长培养学习习惯，用孩子听得懂的方式讲清知识。", work: ["上海市实验学校 · 小学部教师（2022—至今）", "好未来 · 英语教研老师（2020—2022）"], website: "https://example.com/anran", color: "coral", verified: true, modes: ["一对一", "4人小班"] },
-  { id: 2, name: "周屿", initials: "周", role: "初高中数学 · 竞赛", school: "浙江大学", degree: "理学学士", subjects: ["初中数学", "高中数学"], rate: 220, city: "杭州", experience: "8年经验", intro: "不靠题海，带学生建立完整的数学思维与错题体系。", work: ["杭州学军中学 · 数学教师（2021—至今）", "猿辅导 · 高中数学主讲（2018—2021）"], website: "https://example.com/zhouyu", color: "blue", verified: true, modes: ["一对一", "6人小班"] },
-  { id: 3, name: "林知夏", initials: "林", role: "语文阅读 · 写作提升", school: "北京师范大学", degree: "汉语言文学硕士", subjects: ["初中语文", "写作"], rate: 180, city: "北京", experience: "5年经验", intro: "从阅读兴趣出发，让表达有内容、有结构，也有自己的声音。", work: ["北京师范大学附属中学 · 语文教师（2023—至今）", "新东方 · 阅读写作教师（2021—2023）"], website: "https://example.com/zhixia", color: "green", verified: true, modes: ["一对一", "8人小班"] },
-  { id: 4, name: "许嘉言", initials: "许", role: "高中物理 · 中考科学", school: "南京大学", degree: "物理学硕士", subjects: ["高中物理", "初中科学"], rate: 200, city: "南京", experience: "7年经验", intro: "把抽象物理变成生活中的直观模型，注重方法迁移。", work: ["南京外国语学校 · 物理教师（2022—至今）", "精锐教育 · 理科组教师（2019—2022）"], website: "https://example.com/jiayan", color: "gold", modes: ["一对一"] },
+  {
+    id: 1,
+    name: "陈安然",
+    initials: "陈",
+    title: "小学全科 · 英语启蒙",
+    education: "华东师范大学 · 教育学硕士",
+    experience: "6年教学经验",
+    subjects: ["小学全科", "英语"],
+    modes: ["一对一", "4人小班"],
+    intro: "擅长培养学习习惯，用孩子听得懂的方式讲清知识。",
+    color: "coral",
+    demoUrl: "https://example.com",
+  },
+  {
+    id: 2,
+    name: "周宇",
+    initials: "周",
+    title: "初高中数学 · 竞赛思维",
+    education: "浙江大学 · 理学学士",
+    experience: "8年教学经验",
+    subjects: ["初中数学", "高中数学"],
+    modes: ["一对一", "6人小班"],
+    intro: "重视思维过程和错题复盘，帮助学生建立完整的知识体系。",
+    color: "blue",
+    demoUrl: "https://example.com",
+  },
+  {
+    id: 3,
+    name: "林知夏",
+    initials: "林",
+    title: "语文阅读 · 写作提升",
+    education: "北京师范大学 · 汉语言文学硕士",
+    experience: "5年教学经验",
+    subjects: ["初中语文", "写作"],
+    modes: ["一对一", "8人小班"],
+    intro: "从阅读兴趣出发，让表达有内容、有结构，也有自己的声音。",
+    color: "green",
+    demoUrl: "https://example.com",
+  },
+  {
+    id: 4,
+    name: "许嘉言",
+    initials: "许",
+    title: "高中物理 · 中考科学",
+    education: "南京大学 · 物理学硕士",
+    experience: "7年教学经验",
+    subjects: ["高中物理", "初中科学"],
+    modes: ["一对一"],
+    intro: "把抽象物理变成生活中的直观模型，注重方法迁移。",
+    color: "gold",
+    demoUrl: "https://example.com",
+  },
+];
+
+type PlazaNeed = {
+  id: number | string;
+  title: string;
+  area: string;
+  time: string;
+  budget: string;
+  note: string;
+  createdAt?: string;
+};
+
+const sampleNeeds: PlazaNeed[] = [
+  { id: "sample-1", title: "初二 · 数学", area: "成都 · 郫都", time: "周末下午", budget: "150–200元/小时", note: "基础尚可，希望加强几何和函数。" },
+  { id: "sample-2", title: "五年级 · 英语", area: "成都 · 高新", time: "周三、周五晚", budget: "120–180元/小时", note: "希望提升阅读兴趣和口语表达。" },
+  { id: "sample-3", title: "高一 · 物理", area: "线上授课", time: "每周2次", budget: "200元/小时", note: "力学部分薄弱，希望系统梳理。" },
+  { id: "sample-4", title: "四年级 · 全科作业辅导", area: "成都 · 武侯", time: "工作日18:30后", budget: "100–150元/小时", note: "重视学习习惯，女性老师优先。" },
 ];
 
 const classes = [
-  { teacher: "周屿老师", title: "初二数学思维提升班", meta: "线上 · 6人班 · 每周六 14:00", seats: "余2席", price: "¥68/节", tag: "9月开班" },
-  { teacher: "陈安然老师", title: "四年级英语阅读小班", meta: "上海徐汇 · 4人班 · 每周日 10:00", seats: "余1席", price: "¥80/节", tag: "随到随学" },
-  { teacher: "林知夏老师", title: "中考语文写作训练营", meta: "线上 · 8人班 · 每周三 19:30", seats: "余3席", price: "¥59/节", tag: "8月20日开班" },
-];
-
-const needs = [
-  { grade: "初二", subject: "数学", area: "成都 · 郫都", time: "周末下午", budget: "150–200元/小时", age: "刚刚" },
-  { grade: "五年级", subject: "英语", area: "成都 · 高新", time: "周三、周五晚", budget: "120–180元/小时", age: "32分钟前" },
-  { grade: "高一", subject: "物理", area: "线上授课", time: "每周2次", budget: "200元/小时", age: "1小时前" },
+  { teacher: "周宇老师", title: "初二数学思维提升班", meta: "线上 · 6人班 · 每周六 14:00", price: "¥68/节" },
+  { teacher: "陈安然老师", title: "四年级英语阅读小班", meta: "成都线下 · 4人班 · 每周日 10:00", price: "¥80/节" },
+  { teacher: "林知夏老师", title: "中考语文写作训练营", meta: "线上 · 8人班 · 每周三 19:30", price: "¥59/节" },
 ];
 
 async function postForm(url: string, form: HTMLFormElement) {
   const payload = Object.fromEntries(new FormData(form).entries());
-  const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-  const result = await response.json() as { error?: string };
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const result = (await response.json()) as { error?: string };
   if (!response.ok) throw new Error(result.error || "提交失败，请稍后再试");
 }
 
 export function Marketplace() {
-  const [query, setQuery] = useState("");
-  const [subject, setSubject] = useState("全部科目");
-  const [active, setActive] = useState<Teacher | null>(null);
-  const [publish, setPublish] = useState(false);
-  const [join, setJoin] = useState(false);
-  const [parentSubmitted, setParentSubmitted] = useState(false);
-  const [teacherSubmitted, setTeacherSubmitted] = useState(false);
+  const [role, setRole] = useState<Role | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [teacherReady, setTeacherReady] = useState(false);
+  const [activeTeacher, setActiveTeacher] = useState<Teacher | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [submitted, setSubmitted] = useState<"free" | "fast" | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
-  const filtered = useMemo(() => teachers.filter(t => (subject === "全部科目" || t.subjects.some(s => s.includes(subject))) && (`${t.name}${t.role}${t.school}${t.city}`).includes(query)), [query, subject]);
+  const [query, setQuery] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>, type: "parent" | "teacher") {
-    event.preventDefault(); setSubmitting(true); setFormError("");
-    try {
-      await postForm(type === "parent" ? "/api/parent-needs" : "/api/teacher-applications", event.currentTarget);
-      if (type === "parent") setParentSubmitted(true); else setTeacherSubmitted(true);
-    } catch (error) { setFormError(error instanceof Error ? error.message : "提交失败"); }
-    finally { setSubmitting(false); }
+  useEffect(() => {
+    const savedRole = localStorage.getItem("ws-role");
+    if (savedRole === "parent" || savedRole === "teacher") setRole(savedRole);
+    setTeacherReady(localStorage.getItem("ws-teacher-ready") === "true");
+    setHydrated(true);
+  }, []);
+
+  const filteredTeachers = useMemo(() => {
+    const key = query.trim();
+    if (!key) return teachers;
+    return teachers.filter((teacher) =>
+      `${teacher.name}${teacher.title}${teacher.education}${teacher.subjects.join("")}`.includes(key),
+    );
+  }, [query]);
+
+  function chooseRole(nextRole: Role) {
+    localStorage.setItem("ws-role", nextRole);
+    setRole(nextRole);
   }
 
-  return <>
-    <header className="nav"><a className="brand" href="#top"><span className="brand-mark">青</span><span>青禾家教<small>认真找老师，安心学知识</small></span></a><nav><a href="#teachers">找老师</a><a href="#classes">找小班</a><a href="#needs">家长需求</a><a href="#how">如何使用</a></nav><div className="nav-actions"><button className="join-top" onClick={() => setJoin(true)}>老师免费入驻</button><button className="publish-top" onClick={() => setPublish(true)}>发布需求 <b>¥8</b></button></div></header>
-    <main id="top">
-      <section className="hero"><div className="hero-copy"><div className="eyebrow">一对一与精品小班自由选择</div><h1>好老师，不该<br/>藏在信息差里。</h1><p>清晰的学历与经历，真实的教学方向。<br/>先了解，再联系，找到适合孩子的那一位。</p><div className="search"><span>⌕</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="搜索科目、城市或老师姓名"/><a href="#teachers">找老师</a></div><div className="trust"><span>✓ 老师免费入驻</span><span>✓ 家长自主选择</span><span>✓ 一对一与小班课</span></div></div><div className="hero-card"><span className="tape"></span><div className="quote">“</div><p>教育不是把篮子装满，<br/>而是把灯点亮。</p><div className="scribble">每个孩子，都值得被认真看见。</div><div className="leaf">青禾</div></div></section>
+  function switchRole() {
+    localStorage.removeItem("ws-role");
+    setRole(null);
+    setActiveTeacher(null);
+    setPublishOpen(false);
+  }
 
-      <section className="teachers section" id="teachers"><div className="section-head"><div><span className="kicker">精选老师</span><h2>先看看，这些认真教书的人</h2></div><div className="filters">{["全部科目", "数学", "英语", "语文", "物理"].map(s => <button className={subject === s ? "active" : ""} key={s} onClick={() => setSubject(s)}>{s}</button>)}</div></div><div className="teacher-grid">{filtered.map(t => <article className="teacher-card" key={t.id} onClick={() => setActive(t)}><div className={`avatar ${t.color}`}>{t.initials}<span>{t.verified ? "✓" : ""}</span></div><div className="teacher-main"><div className="name-row"><h3>{t.name}</h3><span>{t.experience}</span></div><strong>{t.role}</strong><p className="school">⌂ {t.school} · {t.degree}</p><p>{t.intro}</p><div className="tags">{t.modes.map(s => <i key={s}>{s}</i>)}</div></div><div className="card-foot"><span>{t.city}</span><b>¥{t.rate}<small>/小时起</small></b><button>查看主页 →</button></div></article>)}</div>{filtered.length === 0 && <div className="empty">暂时没有找到匹配的老师，换个关键词试试。</div>}<button className="more" onClick={() => setJoin(true)}>我是老师，免费入驻 <span>→</span></button></section>
+  async function submitTeacher(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setFormError("");
+    try {
+      await postForm("/api/teacher-applications", event.currentTarget);
+      localStorage.setItem("ws-teacher-ready", "true");
+      setTeacherReady(true);
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "提交失败");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
-      <section className="classes section" id="classes"><div className="section-head"><div><span className="kicker">精品小班</span><h2>费用更轻，也保留充分互动</h2></div><p>2–8人小班，让更多家庭找到适合的学习方式。</p></div><div className="class-grid">{classes.map(course => <article key={course.title}><div className="class-top"><span>{course.tag}</span><b>{course.seats}</b></div><h3>{course.title}</h3><p>{course.teacher}</p><small>{course.meta}</small><div><strong>{course.price}</strong><button onClick={() => alert("课程咨询和联系方式解锁将在下一阶段开放。")} >查看课程 →</button></div></article>)}</div></section>
+  async function submitNeed(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setFormError("");
+    const isFast = new FormData(event.currentTarget).get("fastMatch") === "on";
+    try {
+      await postForm("/api/parent-needs", event.currentTarget);
+      setSubmitted(isFast ? "fast" : "free");
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "提交失败");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
-      <section className="needs section" id="needs"><div className="needs-intro"><span className="kicker light">家长需求</span><h2>这些家庭，正在等一位<br/>合适的老师</h2><p>需求由家长自主发布。老师了解情况后，再决定是否联系。</p><button onClick={() => setPublish(true)}>发布我的需求 <b>¥8 / 次</b></button></div><div className="need-list">{needs.map((n, i) => <article key={i}><span className="dot"></span><div><strong>{n.grade} · {n.subject}</strong><p>{n.area}　·　{n.time}</p></div><div><b>{n.budget}</b><small>{n.age}</small></div></article>)}</div></section>
+  if (!hydrated) return <div className="loading-screen">正在打开网站…</div>;
+  if (!role) return <RoleGate onChoose={chooseRole} />;
+  if (role === "teacher" && !teacherReady) {
+    return (
+      <TeacherOnboarding
+        onSubmit={submitTeacher}
+        submitting={submitting}
+        error={formError}
+        onSwitch={switchRole}
+        onExisting={() => {
+          localStorage.setItem("ws-teacher-ready", "true");
+          setTeacherReady(true);
+        }}
+      />
+    );
+  }
 
-      <section className="how section" id="how"><span className="kicker">简单开始</span><h2>老师免费加入，家长按需选择</h2><div><article><em>01</em><h3>浏览老师与小班</h3><p>按科目、城市和授课形式筛选，了解真实资料。</p></article><article><em>02</em><h3>发布或主动联系</h3><p>家长可以发布需求，也可以选择心仪老师进一步沟通。</p></article><article><em>03</em><h3>确认学习安排</h3><p>双方确认试听、时间与费用，平台提供信息与安全保障。</p></article></div></section>
-    </main>
-    <footer><div className="brand"><span className="brand-mark">青</span><span>青禾家教<small>让好老师被看见</small></span></div><p>平台仅提供信息展示与连接服务，请双方在沟通中注意核验身份与资质。</p><span>© 2026 青禾家教</span></footer>
+  if (role === "teacher") {
+    return <TeacherPlaza onSwitch={switchRole} />;
+  }
 
-    {active && <div className="overlay" onMouseDown={() => setActive(null)}><section className="profile" onMouseDown={e => e.stopPropagation()}><button className="close" onClick={() => setActive(null)} aria-label="关闭">×</button><div className="profile-hero"><div className={`avatar big ${active.color}`}>{active.initials}</div><div><span className="kicker">老师个人主页</span><h2>{active.name} {active.verified && <i>已核验</i>}</h2><strong>{active.role}</strong><p>{active.city} · {active.experience} · ¥{active.rate}/小时起</p></div></div><div className="profile-body"><aside><h4>基本信息</h4><p><b>最高学历</b>{active.degree}</p><p><b>毕业院校</b>{active.school}</p><p><b>授课形式</b>{active.modes.join("、")}</p><a href={active.website} target="_blank" rel="noreferrer">访问个人网站 ↗</a></aside><div><h4>关于我</h4><p>{active.intro} 我相信好的辅导不只是提高一次成绩，更重要的是让学生逐渐拥有独立学习的能力。</p><h4>工作经历</h4>{active.work.map(w => <p className="work" key={w}>{w}</p>)}<button className="contact" onClick={() => alert("联系方式付费解锁功能将在支付接入后开放。")} >联系这位老师</button></div></div></section></div>}
+  return (
+    <>
+      <header className="site-nav">
+        <Brand />
+        <nav>
+          <a href="#teachers">找老师</a>
+          <a href="#classes">找小班</a>
+          <a href="#about">平台说明</a>
+        </nav>
+        <div className="nav-actions">
+          <button className="text-button" onClick={switchRole}>切换身份</button>
+          <button className="primary-button compact" onClick={() => setPublishOpen(true)}>免费发布需求</button>
+        </div>
+      </header>
 
-    {publish && <div className="overlay"><section className="publish-modal"><button className="close" onClick={() => { setPublish(false); setParentSubmitted(false); setFormError(""); }} aria-label="关闭">×</button>{parentSubmitted ? <Success title="需求资料已保存" text="资料已经安全保存，当前处于待支付状态。支付功能接入后，完成 ¥8 支付即可正式发布。" close={() => { setPublish(false); setParentSubmitted(false); }}/>: <><span className="kicker">发布家教需求</span><h2>说说孩子需要怎样的帮助</h2><p className="modal-note">填写后进入待支付状态，正式发布价 ¥8 / 次。</p><form onSubmit={e => handleSubmit(e, "parent")}><label>年级与科目<input name="gradeSubject" required placeholder="例如：初二数学"/></label><label>所在城市 / 授课方式<input name="area" required placeholder="例如：成都郫都 / 可线上"/></label><label>期望时间<input name="schedule" required placeholder="例如：周末下午，每周一次"/></label><label>预算（元/小时）<input name="budget" required placeholder="例如：150–200"/></label><label>需求说明<textarea name="description" required placeholder="孩子目前的情况、希望提升的方向…"/></label><label>联系方式<input name="contact" required placeholder="手机号或微信号（不会公开展示）"/></label><input className="hidden-field" name="website" tabIndex={-1} autoComplete="off"/><button className="pay" disabled={submitting}>{submitting ? "正在保存…" : "保存需求，稍后支付 ¥8"}</button>{formError && <small className="form-error">{formError}</small>}<small>联系方式仅用于匹配和服务通知</small></form></>}</section></div>}
+      <main>
+        <section className="parent-hero">
+          <div>
+            <span className="eyebrow">我是家长</span>
+            <h1>先了解老师，<br />再决定要不要联系。</h1>
+            <p>老师入驻免费，家长发布需求也免费。你可以自己慢慢找，也可以选择 ¥18 极速筛选服务。</p>
+            <div className="hero-actions">
+              <a className="primary-button" href="#teachers">浏览老师</a>
+              <button className="secondary-button" onClick={() => setPublishOpen(true)}>免费发布需求</button>
+            </div>
+            <div className="trust-row">
+              <span>老师资料清晰展示</span>
+              <span>支持一对一与小班</span>
+              <span>发布需求不收费</span>
+            </div>
+          </div>
+          <aside className="hero-note">
+            <span>需要快一点？</span>
+            <strong>¥18 极速筛选</strong>
+            <p>告诉我们孩子的情况，由平台帮你优先整理更合适的老师。</p>
+            <small>自愿选择，不影响免费发布</small>
+          </aside>
+        </section>
 
-    {join && <div className="overlay"><section className="publish-modal teacher-join"><button className="close" onClick={() => { setJoin(false); setTeacherSubmitted(false); setFormError(""); }} aria-label="关闭">×</button>{teacherSubmitted ? <Success title="入驻申请已提交" text="资料已经保存并进入待审核状态。审核通过后，老师主页和课程信息才会公开展示。" close={() => { setJoin(false); setTeacherSubmitted(false); }}/>: <><span className="kicker">老师免费入驻</span><h2>让更多家庭看见你的专业</h2><p className="modal-note">入驻、发布一对一和小班信息均不向老师收费。</p><form onSubmit={e => handleSubmit(e, "teacher")}><label>姓名<input name="name" required placeholder="真实姓名"/></label><label>手机号<input name="phone" required inputMode="numeric" placeholder="中国大陆手机号"/></label><label>所在城市<input name="city" required placeholder="例如：成都"/></label><label>擅长科目<input name="subject" required placeholder="例如：初高中数学"/></label><label>毕业院校<input name="school" required placeholder="学校全称"/></label><label>最高学历<input name="degree" required placeholder="例如：本科"/></label><label>授课形式<select name="teachingMode" required defaultValue=""><option value="" disabled>请选择</option><option>一对一</option><option>小班课</option><option>一对一和小班课</option></select></label><label>小班人数<input name="classSize" placeholder="例如：4–6人（可不填）"/></label><label>参考价格<input name="rate" required placeholder="例如：150元/小时"/></label><label>个人介绍<textarea name="introduction" required placeholder="教学经验、方法与擅长方向…"/></label><input className="hidden-field" name="website" tabIndex={-1} autoComplete="off"/><button className="pay" disabled={submitting}>{submitting ? "正在提交…" : "免费提交入驻申请"}</button>{formError && <small className="form-error">{formError}</small>}<small>手机号不会直接公开，审核时我们会与您联系</small></form></>}</section></div>}
-  </>;
+        <section className="content-section" id="teachers">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">老师名片</span>
+              <h2>看看谁更适合孩子</h2>
+            </div>
+            <input
+              className="teacher-search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="搜索科目、学历或老师姓名"
+            />
+          </div>
+          <div className="teacher-grid">
+            {filteredTeachers.map((teacher) => (
+              <article className="teacher-card" key={teacher.id} onClick={() => setActiveTeacher(teacher)}>
+                <div className={`avatar ${teacher.color}`}>{teacher.initials}</div>
+                <div className="teacher-card-body">
+                  <div className="teacher-title">
+                    <h3>{teacher.name}</h3>
+                    <span>{teacher.experience}</span>
+                  </div>
+                  <strong>{teacher.title}</strong>
+                  <p className="education">{teacher.education}</p>
+                  <p>{teacher.intro}</p>
+                  <div className="tag-row">{teacher.modes.map((mode) => <i key={mode}>{mode}</i>)}</div>
+                </div>
+                <button>查看老师主页 →</button>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="class-section content-section" id="classes">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">精品小班</span>
+              <h2>一对多，也可以学得认真</h2>
+            </div>
+            <p>让预算更轻松，也保留充分互动。</p>
+          </div>
+          <div className="class-grid">
+            {classes.map((course) => (
+              <article key={course.title}>
+                <span>招生中</span>
+                <h3>{course.title}</h3>
+                <p>{course.teacher}</p>
+                <small>{course.meta}</small>
+                <strong>{course.price}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="about-section" id="about">
+          <span className="eyebrow">我们的原则</span>
+          <h2>老师是平台最重要的内容，家长拥有选择权。</h2>
+          <div>
+            <article><b>01</b><h3>老师免费入驻</h3><p>完整展示学历、经历、试讲资料与授课方式。</p></article>
+            <article><b>02</b><h3>家长免费发布</h3><p>发布后进入求贤广场，让合适的老师看见。</p></article>
+            <article><b>03</b><h3>筛选按需付费</h3><p>只有需要平台快速协助时，才选择 ¥18 服务。</p></article>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <Brand />
+        <p>平台提供信息展示与连接服务。沟通前，请双方核验身份、资质与授课安排。</p>
+        <span>© 2026 我是老师我是家长</span>
+      </footer>
+
+      {activeTeacher && (
+        <div className="overlay" onMouseDown={() => setActiveTeacher(null)}>
+          <section className="teacher-profile" onMouseDown={(event) => event.stopPropagation()}>
+            <button className="close-button" onClick={() => setActiveTeacher(null)} aria-label="关闭">×</button>
+            <div className="profile-top">
+              <div className={`avatar large ${activeTeacher.color}`}>{activeTeacher.initials}</div>
+              <div>
+                <span className="eyebrow">老师个人主页</span>
+                <h2>{activeTeacher.name}</h2>
+                <strong>{activeTeacher.title}</strong>
+              </div>
+            </div>
+            <div className="profile-content">
+              <div>
+                <h3>学历</h3>
+                <p>{activeTeacher.education}</p>
+                <h3>教学经历</h3>
+                <p>{activeTeacher.experience}。{activeTeacher.intro}</p>
+                <h3>授课方式</h3>
+                <p>{activeTeacher.modes.join("、")}</p>
+              </div>
+              <aside>
+                <a href={activeTeacher.demoUrl} target="_blank" rel="noreferrer">查看试讲 / 教学展示 →</a>
+                <button className="primary-button" onClick={() => alert("正式上线前会补充登录、隐私保护和联系确认流程。")}>申请联系老师</button>
+                <small>联系方式不会直接公开展示</small>
+              </aside>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {publishOpen && (
+        <div className="overlay">
+          <section className="publish-modal">
+            <button
+              className="close-button"
+              onClick={() => {
+                setPublishOpen(false);
+                setSubmitted(null);
+                setFormError("");
+              }}
+              aria-label="关闭"
+            >×</button>
+            {submitted ? (
+              <div className="success-state">
+                <span>✓</span>
+                <h2>{submitted === "fast" ? "需求已保存" : "免费需求已提交"}</h2>
+                <p>
+                  {submitted === "fast"
+                    ? "极速筛选服务暂未开通真实支付。资料已保存，接入支付后才会向你收取 ¥18。"
+                    : "审核后会免费发布到求贤广场，不收取发布费。"}
+                </p>
+                <button className="primary-button" onClick={() => { setPublishOpen(false); setSubmitted(null); }}>知道了</button>
+              </div>
+            ) : (
+              <>
+                <span className="eyebrow">家长发布需求</span>
+                <h2>说说孩子需要怎样的帮助</h2>
+                <p className="modal-note">默认免费发布，联系方式不会公开展示。</p>
+                <form onSubmit={submitNeed}>
+                  <label>年级与科目<input name="gradeSubject" required placeholder="例如：初二数学" /></label>
+                  <label>地区 / 授课方式<input name="area" required placeholder="例如：成都郫都 / 可线上" /></label>
+                  <label>期望时间<input name="schedule" required placeholder="例如：周末下午" /></label>
+                  <label>预算<input name="budget" required placeholder="例如：150–200元/小时" /></label>
+                  <label className="full-field">具体需求<textarea name="description" required placeholder="孩子目前的情况、希望提升的方向…" /></label>
+                  <label className="full-field">联系方式<input name="contact" required placeholder="手机号或微信号" /></label>
+                  <label className="fast-option full-field">
+                    <input type="checkbox" name="fastMatch" />
+                    <span><b>需要平台帮我极速筛选</b><small>可选服务 ¥18；目前为测试入口，暂不扣款</small></span>
+                  </label>
+                  <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" />
+                  <button className="primary-button full-field" disabled={submitting}>
+                    {submitting ? "正在提交…" : "提交需求"}
+                  </button>
+                  {formError && <small className="form-error full-field">{formError}</small>}
+                </form>
+              </>
+            )}
+          </section>
+        </div>
+      )}
+    </>
+  );
 }
 
-function Success({ title, text, close }: { title: string; text: string; close: () => void }) {
-  return <div className="success"><span>✓</span><h2>{title}</h2><p>{text}</p><button onClick={close}>知道了</button></div>;
+function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
+  return (
+    <main className="role-gate">
+      <div className="role-shell">
+        <Brand />
+        <div className="role-intro">
+          <span className="eyebrow">欢迎来到</span>
+          <h1>我是老师，我是家长。<br />从身份开始，找到彼此。</h1>
+          <p>老师免费展示自己，家长免费发布需求。请先告诉我们，你今天以什么身份进入？</p>
+        </div>
+        <div className="role-choices">
+          <button className="role-choice parent-choice" onClick={() => onChoose("parent")}>
+            <span>家</span>
+            <small>我要找老师</small>
+            <strong>我是家长</strong>
+            <p>浏览老师、查看小班，或免费发布孩子的学习需求。</p>
+            <b>进入家长页面 →</b>
+          </button>
+          <button className="role-choice teacher-choice" onClick={() => onChoose("teacher")}>
+            <span>师</span>
+            <small>我要找学生</small>
+            <strong>我是老师</strong>
+            <p>免费建立老师主页，查看家长发布的真实需求。</p>
+            <b>进入老师页面 →</b>
+          </button>
+        </div>
+        <p className="role-footnote">身份会保存在当前设备，之后可以随时切换。</p>
+      </div>
+    </main>
+  );
+}
+
+function TeacherOnboarding({
+  onSubmit,
+  submitting,
+  error,
+  onSwitch,
+  onExisting,
+}: {
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  submitting: boolean;
+  error: string;
+  onSwitch: () => void;
+  onExisting: () => void;
+}) {
+  return (
+    <main className="teacher-onboarding">
+      <header className="portal-header">
+        <Brand />
+        <button className="text-button" onClick={onSwitch}>切换身份</button>
+      </header>
+      <section className="onboarding-layout">
+        <aside>
+          <span className="eyebrow">老师首次入驻</span>
+          <h1>先让家长认识你。</h1>
+          <p>资料填写完成后，就可以进入“求贤广场”查看家长需求。入驻和展示均不向老师收费。</p>
+          <ol>
+            <li><b>1</b>填写真实基础资料</li>
+            <li><b>2</b>平台审核后生成主页</li>
+            <li><b>3</b>进入求贤广场找学生</li>
+          </ol>
+        </aside>
+        <div className="onboarding-card">
+          <h2>建立老师资料</h2>
+          <p>“试讲 / 教学展示链接”可以是你已有的录课、公开课或个人网站。</p>
+          <form onSubmit={onSubmit}>
+            <label>姓名<input name="name" required placeholder="请输入真实姓名" /></label>
+            <label>性别
+              <select name="gender" required defaultValue="">
+                <option value="" disabled>请选择</option>
+                <option>女</option>
+                <option>男</option>
+                <option>不便公开</option>
+              </select>
+            </label>
+            <label className="full-field">学历<input name="education" required placeholder="例如：四川大学，本科，汉语言文学" /></label>
+            <label className="full-field">教学经历<textarea name="teachingExperience" required placeholder="教过哪些年级和科目、教学年限、擅长方向…" /></label>
+            <label className="full-field">试讲 / 教学展示链接（选填）<input name="demoUrl" type="url" placeholder="https://" /></label>
+            <label className="full-field">联系方式<input name="contact" required placeholder="手机号或微信号（不会直接公开）" /></label>
+            <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" />
+            <button className="primary-button full-field" disabled={submitting}>
+              {submitting ? "正在提交…" : "提交资料并进入求贤广场"}
+            </button>
+            {error && <small className="form-error full-field">{error}</small>}
+          </form>
+          <button className="existing-button" onClick={onExisting}>我已经提交过资料，直接进入求贤广场</button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function TeacherPlaza({ onSwitch }: { onSwitch: () => void }) {
+  const [needs, setNeeds] = useState<PlazaNeed[]>(sampleNeeds);
+
+  useEffect(() => {
+    fetch("/api/parent-needs")
+      .then((response) => response.json())
+      .then((result: { needs?: Array<{ id: number; gradeSubject: string; area: string; schedule: string; budget: string; description: string; createdAt: string }> }) => {
+        if (!result.needs?.length) return;
+        setNeeds(result.needs.map((need) => ({
+          id: need.id,
+          title: need.gradeSubject,
+          area: need.area,
+          time: need.schedule,
+          budget: need.budget,
+          note: need.description,
+          createdAt: need.createdAt,
+        })));
+      })
+      .catch(() => {
+        // 网络异常时保留示例内容，避免页面空白。
+      });
+  }, []);
+
+  return (
+    <>
+      <header className="portal-header sticky">
+        <Brand />
+        <nav><a href="#plaza">求贤广场</a><a href="#rules">联系规则</a></nav>
+        <button className="text-button" onClick={onSwitch}>切换身份</button>
+      </header>
+      <main className="plaza-page" id="plaza">
+        <section className="plaza-hero">
+          <span className="eyebrow">老师端 · 求贤广场</span>
+          <h1>这些家庭，正在等一位合适的老师。</h1>
+          <p>看看孩子的年级、科目、时间和预算，再决定是否申请联系。</p>
+          <div><span>今日新增 4 条</span><span>成都及线上需求</span><span>老师免费使用</span></div>
+        </section>
+        <section className="plaza-content">
+          <div className="plaza-filter">
+            <strong>最新家长需求</strong>
+            <div><button className="active">全部</button><button>小学</button><button>初中</button><button>高中</button><button>线上</button></div>
+          </div>
+          <div className="task-grid">
+            {needs.map((need, index) => (
+              <article className="task-card" key={need.id}>
+                <div><span>{index < 2 ? "新发布" : "招募中"}</span><small>{index * 18 + 6}分钟前</small></div>
+                <h2>{need.title}</h2>
+                <dl>
+                  <div><dt>地区</dt><dd>{need.area}</dd></div>
+                  <div><dt>时间</dt><dd>{need.time}</dd></div>
+                  <div><dt>预算</dt><dd>{need.budget}</dd></div>
+                </dl>
+                <p>{need.note}</p>
+                <button onClick={() => alert("正式上线前会加入老师审核、登录和双方同意后的联系方式交换。")}>申请联系家长 →</button>
+              </article>
+            ))}
+          </div>
+          <aside className="contact-rules" id="rules">
+            <strong>联系规则</strong>
+            <p>家长联系方式不会直接公开。老师提交联系申请后，经平台审核并获得家长同意，再开放双方沟通。</p>
+          </aside>
+        </section>
+      </main>
+    </>
+  );
+}
+
+function Brand() {
+  return (
+    <a className="brand" href="#">
+      <span className="brand-mark">我</span>
+      <span>我是老师我是家长<small>老师与家长，直接连接</small></span>
+    </a>
+  );
 }

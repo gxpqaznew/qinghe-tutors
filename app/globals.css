@@ -1,7 +1,220 @@
 @import "tailwindcss";
 
-.nav-actions{display:flex;align-items:center;gap:10px}.join-top{border:1px solid var(--green);background:transparent;color:var(--green);padding:12px 16px;border-radius:4px}.classes{background:#f0eee5}.classes .section-head>p{max-width:360px;color:#6a7a73;line-height:1.7}.class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.class-grid article{background:#fff;padding:25px;border:1px solid #e0e3da}.class-top,.class-grid article>div:last-child{display:flex;align-items:center;justify-content:space-between}.class-top span{background:#e4eee1;color:var(--green);font-size:11px;padding:5px 8px}.class-top b{color:#c45a3b;font-size:12px}.class-grid h3{font:700 22px Georgia,"Songti SC",serif;color:var(--ink);margin:24px 0 8px}.class-grid p{color:#c45a3b;font-size:13px}.class-grid small{display:block;color:#718078;margin:12px 0 25px}.class-grid strong{font-size:20px;color:var(--ink)}.class-grid button{border:0;background:transparent;color:#c45a3b}.publish-modal select{display:block;width:100%;border:1px solid #d8ded6;background:white;padding:12px;margin-top:7px;outline-color:#719484}.teacher-join{width:min(720px,100%)}.teacher-join form label:nth-of-type(9),.teacher-join form label:nth-of-type(10){grid-column:1/-1}.hidden-field{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important}.pay:disabled{opacity:.65;cursor:wait}.form-error{grid-column:1/-1!important;color:#b64134!important;font-weight:700}
+:root {
+  --ink: #183d36;
+  --green: #174c42;
+  --green-soft: #e3eee8;
+  --cream: #f8f4e9;
+  --paper: #fffdf7;
+  --coral: #e36f4d;
+  --yellow: #e8c66e;
+  --line: #dbe3dd;
+  --muted: #687b73;
+}
 
-:root{--ink:#173d36;--green:#174c42;--mint:#e8f1e5;--cream:#f7f4eb;--orange:#e8744f;--line:#dce3d8}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fbfaf5;color:#213c36;font-family:"Microsoft YaHei","PingFang SC",sans-serif}button,input,textarea{font:inherit}button,a{cursor:pointer}.nav{height:84px;display:flex;align-items:center;justify-content:space-between;padding:0 max(5vw,28px);background:#fbfaf5;position:sticky;top:0;z-index:20;border-bottom:1px solid #ebeae2}.brand{display:flex;align-items:center;gap:11px;color:var(--ink);font-family:serif;font-weight:800;font-size:20px;text-decoration:none}.brand-mark{width:40px;height:40px;border-radius:50% 50% 48% 40%;display:grid;place-items:center;background:var(--green);color:white;transform:rotate(-4deg)}.brand small{display:block;font:10px sans-serif;letter-spacing:2px;margin-top:2px;color:#71827a}.nav nav{display:flex;gap:38px}.nav nav a{text-decoration:none;color:#3e544d;font-size:14px}.publish-top,.needs-intro button{border:0;background:var(--orange);color:#fff;padding:13px 20px;border-radius:4px}.publish-top b{margin-left:8px}.hero{min-height:590px;background:linear-gradient(112deg,#e6f0e3 0 63%,#d7e7d4 63%);display:grid;grid-template-columns:1.2fr .8fr;align-items:center;padding:65px max(8vw,36px);overflow:hidden}.eyebrow,.kicker{display:inline-block;color:#c45a3b;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}.hero h1{font:800 clamp(46px,5.4vw,78px)/1.16 Georgia,"Songti SC",serif;color:#153f36;margin:0 0 24px;letter-spacing:-2px}.hero-copy>p{font:17px/1.9 serif;color:#52675f}.search{max-width:590px;height:60px;background:#fff;display:flex;align-items:center;margin:30px 0 18px;box-shadow:0 12px 35px #315d4a18}.search>span{font-size:26px;margin-left:20px}.search input{border:0;outline:0;flex:1;padding:0 15px}.search a{align-self:stretch;display:grid;place-items:center;background:var(--green);color:#fff;text-decoration:none;padding:0 27px}.trust{display:flex;gap:26px;font-size:12px;color:#5d766c}.hero-card{width:330px;height:360px;background:#fffaf0;box-shadow:0 25px 50px #31574422;transform:rotate(3deg);padding:55px 38px;position:relative;text-align:center;font-family:serif}.tape{position:absolute;top:-18px;left:105px;width:120px;height:38px;background:#e8d8a9aa;transform:rotate(-5deg)}.quote{font:70px Georgia;color:#d77d59;height:50px}.hero-card>p{font-size:22px;line-height:1.7}.scribble{margin-top:36px;color:#62776d;font-size:14px}.leaf{position:absolute;right:-30px;bottom:-30px;background:var(--green);color:white;width:90px;height:90px;border-radius:50% 0 50% 50%;display:grid;place-items:center}.section{padding:90px max(8vw,36px)}.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:34px}.section h2{font:700 clamp(30px,3vw,43px)/1.3 Georgia,"Songti SC",serif;color:var(--ink);margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters button{border:1px solid var(--line);background:transparent;padding:8px 14px;border-radius:20px;color:#607169}.filters button.active{background:var(--green);color:#fff;border-color:var(--green)}.teacher-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.teacher-card{display:grid;grid-template-columns:82px 1fr;gap:18px;padding:25px;background:#fff;border:1px solid #e1e5dd;transition:.2s;cursor:pointer}.teacher-card:hover{transform:translateY(-3px);box-shadow:0 14px 35px #294c3c12}.avatar{width:72px;height:82px;border-radius:45% 45% 42% 42%;display:grid;place-items:center;font:700 29px Georgia;color:#fff;position:relative}.avatar span{position:absolute;right:-4px;bottom:3px;width:20px;height:20px;border-radius:50%;background:var(--green);font:13px sans-serif;display:grid;place-items:center;border:2px solid white}.coral{background:#d9836b}.blue{background:#648ba2}.green{background:#6c927a}.gold{background:#b99a5f}.name-row{display:flex;align-items:center;gap:12px}.name-row h3{margin:0;font:700 23px Georgia}.name-row span{background:#edf2e8;color:#557060;font-size:11px;padding:4px 7px}.teacher-main>strong{display:block;color:#bd5c40;margin:8px 0;font-size:14px}.teacher-main p{font-size:13px;color:#68766f;line-height:1.7;margin:8px 0}.teacher-main .school{color:#344f47}.tags{display:flex;gap:6px}.tags i{font-style:normal;background:#f3f1e9;border-radius:2px;padding:5px 8px;font-size:11px}.card-foot{grid-column:1/-1;border-top:1px solid #eceee8;padding-top:16px;display:flex;align-items:center;color:#7b8982;font-size:12px}.card-foot b{font-size:18px;color:var(--ink);margin-left:auto}.card-foot b small{font-size:10px;font-weight:400}.card-foot button{border:0;background:transparent;color:#c45a3b;margin-left:15px}.more{display:block;margin:35px auto 0;border:1px solid #a7b3ab;background:transparent;padding:12px 25px;color:var(--ink)}.empty{text-align:center;padding:50px}.needs{background:var(--green);color:white;display:grid;grid-template-columns:.8fr 1.2fr;gap:80px}.kicker.light{color:#ef9b7e}.needs h2{color:#fff}.needs-intro p{color:#cbd9d4;line-height:1.8}.needs-intro button{margin-top:20px}.needs-intro button b{display:block;font-size:10px;margin-top:4px}.need-list{display:flex;flex-direction:column}.need-list article{display:grid;grid-template-columns:18px 1fr auto;align-items:center;padding:24px 0;border-bottom:1px solid #ffffff24}.dot{width:7px;height:7px;border-radius:50%;background:#ef9170}.need-list strong{font:700 19px Georgia}.need-list p{color:#b8cbc4;font-size:12px}.need-list article>div:last-child{text-align:right}.need-list b,.need-list small{display:block}.need-list b{color:#f0d8ac}.need-list small{color:#a7bcb5;margin-top:8px}.how{text-align:center}.how>div{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:45px}.how article{background:#fbfaf5;padding:35px}.how em{font:italic 42px Georgia;color:#d9a58e}.how h3{font:700 20px Georgia}.how p{color:#65776f;font-size:14px;line-height:1.8}footer{display:flex;align-items:center;justify-content:space-between;padding:40px max(5vw,28px);background:#eeeade;color:#69776f;font-size:11px}footer p{max-width:480px;text-align:center}.overlay{position:fixed;inset:0;background:#173d36c7;z-index:50;display:grid;place-items:center;padding:24px;overflow:auto}.profile,.publish-modal{background:#fbfaf5;width:min(880px,100%);max-height:92vh;overflow:auto;position:relative;box-shadow:0 30px 80px #0004}.close{position:absolute;right:18px;top:14px;border:0;background:transparent;font-size:30px;color:#61746b}.profile-hero{background:#e4eee1;padding:45px;display:flex;gap:25px;align-items:center}.avatar.big{width:105px;height:120px;font-size:42px}.profile-hero h2{font:700 38px Georgia;margin:2px 0 8px;color:var(--ink)}.profile-hero h2 i{font:11px sans-serif;background:var(--green);color:white;padding:5px 8px;font-style:normal}.profile-hero strong{color:#c45a3b}.profile-hero p{font-size:13px}.profile-body{display:grid;grid-template-columns:230px 1fr;gap:42px;padding:40px 45px}.profile-body aside{border-right:1px solid var(--line);padding-right:30px}.profile-body h4{font:700 19px Georgia;color:var(--ink);margin-top:0}.profile-body p{font-size:14px;line-height:1.8;color:#586a62}.profile-body aside p b{display:block;font-size:11px;color:#9a6c59}.profile-body aside a{display:inline-block;color:#c45a3b;margin-top:10px}.work{border-left:2px solid #d99073;padding-left:15px}.contact,.success button{border:0;background:var(--green);color:white;padding:13px 24px;margin-top:15px}.publish-modal{width:min(620px,100%);padding:42px 50px}.publish-modal h2{font:700 32px Georgia;color:var(--ink);margin:2px 0}.modal-note{font-size:13px;color:#718078}.publish-modal form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:25px}.publish-modal label{font-size:12px;font-weight:700;color:#40564e}.publish-modal input,.publish-modal textarea{display:block;width:100%;border:1px solid #d8ded6;background:white;padding:12px;margin-top:7px;outline-color:#719484}.publish-modal label:nth-child(5),.publish-modal label:nth-child(6),.publish-modal .pay,.publish-modal form>small{grid-column:1/-1}.publish-modal textarea{height:85px;resize:vertical}.pay{border:0;background:var(--orange);color:white;padding:15px;font-weight:700}.publish-modal form>small{text-align:center;color:#89958f}.success{text-align:center;padding:45px 10px}.success>span{display:grid;place-items:center;margin:auto;width:58px;height:58px;border-radius:50%;background:#dfead9;color:var(--green);font-size:28px}.success h2{margin-top:22px}.success p{color:#65776f;line-height:1.8}
-@media(max-width:850px){.nav nav{display:none}.hero{grid-template-columns:1fr;padding-top:50px}.hero-card{display:none}.teacher-grid,.class-grid{grid-template-columns:1fr}.section-head{display:block}.filters{margin-top:22px}.needs{grid-template-columns:1fr;gap:35px}.profile-body{grid-template-columns:1fr}.profile-body aside{border-right:0;border-bottom:1px solid var(--line);padding:0 0 20px}.how>div{grid-template-columns:1fr}footer{flex-direction:column;gap:20px}.trust{flex-wrap:wrap}.publish-modal form{grid-template-columns:1fr}.publish-modal label,.publish-modal .pay,.publish-modal form>small{grid-column:1/-1}}
-@media(max-width:520px){.nav{padding:0 12px}.brand small,.join-top{display:none}.publish-top{padding:10px 12px}.hero,.section{padding-left:20px;padding-right:20px}.hero h1{font-size:44px}.search a{padding:0 14px}.teacher-card{grid-template-columns:60px 1fr;padding:17px}.avatar{width:58px;height:68px}.card-foot{flex-wrap:wrap;gap:8px}.needs{padding-top:65px}.profile-hero{padding:50px 24px 28px;align-items:start}.profile-body,.publish-modal{padding:30px 24px}.avatar.big{width:70px;height:82px}.profile-hero h2{font-size:28px}}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+button, input, textarea, select { font: inherit; }
+button, a { cursor: pointer; }
+a { color: inherit; }
+
+.loading-screen { min-height: 100vh; display: grid; place-items: center; background: var(--cream); color: var(--muted); }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font: 800 19px Georgia, "Songti SC", serif; }
+.brand-mark { width: 42px; height: 42px; display: grid; place-items: center; color: white; background: var(--green); border-radius: 50% 50% 42% 48%; transform: rotate(-5deg); }
+.brand small { display: block; margin-top: 3px; color: var(--muted); font: 10px "Microsoft YaHei", sans-serif; letter-spacing: 1.4px; }
+.eyebrow { display: inline-block; margin-bottom: 14px; color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: 3px; }
+.primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 24px; border: 0; border-radius: 4px; font-weight: 700; text-decoration: none; }
+.primary-button { color: white; background: var(--green); }
+.primary-button:disabled { opacity: .6; cursor: wait; }
+.secondary-button { color: var(--green); background: transparent; border: 1px solid var(--green); }
+.compact { min-height: 42px; padding: 0 18px; }
+.text-button { color: var(--green); background: transparent; border: 0; }
+
+.role-gate { min-height: 100vh; padding: 42px max(5vw, 24px); overflow: hidden; background: radial-gradient(circle at 85% 10%, #f5d8c8 0, transparent 28%), radial-gradient(circle at 3% 90%, #d4e7db 0, transparent 35%), var(--cream); }
+.role-shell { width: min(1120px, 100%); margin: 0 auto; }
+.role-intro { margin: 8vh 0 42px; text-align: center; }
+.role-intro h1 { margin: 0; color: var(--ink); font: 800 clamp(40px, 5vw, 68px)/1.2 Georgia, "Songti SC", serif; letter-spacing: -2px; }
+.role-intro p { max-width: 630px; margin: 22px auto 0; color: var(--muted); font-size: 16px; line-height: 1.8; }
+.role-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.role-choice { position: relative; min-height: 270px; padding: 34px 34px 30px 135px; overflow: hidden; border: 1px solid #d7ddd5; background: #fffdf8; text-align: left; transition: transform .2s, box-shadow .2s; }
+.role-choice:hover { transform: translateY(-5px); box-shadow: 0 22px 50px #214c3b1c; }
+.role-choice > span { position: absolute; top: 32px; left: 32px; width: 76px; height: 86px; display: grid; place-items: center; color: white; border-radius: 47% 47% 43% 45%; font: 800 34px Georgia, serif; }
+.parent-choice > span { background: var(--coral); }
+.teacher-choice > span { background: var(--green); }
+.role-choice small { display: block; margin-bottom: 10px; color: var(--coral); font-weight: 700; }
+.role-choice strong { display: block; font: 800 32px Georgia, "Songti SC", serif; }
+.role-choice p { min-height: 54px; color: var(--muted); line-height: 1.7; }
+.role-choice b { display: block; margin-top: 24px; color: var(--green); }
+.role-footnote { color: #85938d; text-align: center; font-size: 12px; }
+
+.site-nav, .portal-header { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 0 max(5vw, 28px); background: var(--paper); border-bottom: 1px solid #ecebe5; z-index: 20; }
+.site-nav { position: sticky; top: 0; }
+.portal-header.sticky { position: sticky; top: 0; }
+.site-nav nav, .portal-header nav { display: flex; gap: 32px; }
+.site-nav nav a, .portal-header nav a { color: #496058; text-decoration: none; font-size: 14px; }
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.parent-hero { min-height: 610px; display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 9vw; padding: 70px max(8vw, 36px); background: linear-gradient(115deg, #e6f0e9 0 68%, #d8e8de 68%); }
+.parent-hero h1 { margin: 0 0 24px; font: 800 clamp(46px, 5.4vw, 76px)/1.15 Georgia, "Songti SC", serif; letter-spacing: -2px; }
+.parent-hero > div > p { max-width: 640px; color: #52675f; font-size: 17px; line-height: 1.85; }
+.hero-actions { display: flex; gap: 12px; margin: 32px 0 28px; }
+.trust-row { display: flex; flex-wrap: wrap; gap: 22px; color: #5f756c; font-size: 12px; }
+.trust-row span::before { content: "✓"; margin-right: 6px; color: var(--coral); font-weight: 900; }
+.hero-note { position: relative; width: min(360px, 100%); padding: 48px 38px; background: #fffaf0; box-shadow: 0 25px 55px #214c3a20; transform: rotate(2deg); }
+.hero-note::before { content: ""; position: absolute; top: -16px; left: 105px; width: 120px; height: 34px; background: #dfc99099; transform: rotate(-4deg); }
+.hero-note > span { color: var(--coral); font-size: 13px; font-weight: 800; }
+.hero-note strong { display: block; margin: 18px 0; font: 800 34px Georgia, serif; }
+.hero-note p { color: var(--muted); line-height: 1.8; }
+.hero-note small { display: block; margin-top: 28px; color: #829189; }
+
+.content-section { padding: 88px max(8vw, 36px); }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 34px; }
+.section-heading h2, .about-section h2 { margin: 0; font: 800 clamp(30px, 3.3vw, 45px)/1.25 Georgia, "Songti SC", serif; }
+.section-heading > p { max-width: 330px; color: var(--muted); line-height: 1.7; }
+.teacher-search { width: min(340px, 100%); padding: 13px 16px; border: 1px solid var(--line); background: white; outline-color: #739587; }
+.teacher-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.teacher-card { position: relative; display: grid; grid-template-columns: 76px 1fr; gap: 18px; padding: 25px; background: white; border: 1px solid var(--line); cursor: pointer; transition: .2s; }
+.teacher-card:hover { transform: translateY(-3px); box-shadow: 0 16px 35px #284b3d12; }
+.avatar { width: 70px; height: 80px; display: grid; place-items: center; color: white; border-radius: 46% 46% 42% 44%; font: 800 29px Georgia, serif; }
+.avatar.coral { background: #d77d66; }
+.avatar.blue { background: #648aa1; }
+.avatar.green { background: #6f957e; }
+.avatar.gold { background: #b49a60; }
+.teacher-title { display: flex; align-items: center; gap: 12px; }
+.teacher-title h3 { margin: 0; font: 800 23px Georgia, "Songti SC", serif; }
+.teacher-title span { padding: 4px 7px; color: #54705f; background: #edf2e9; font-size: 11px; }
+.teacher-card-body > strong { display: block; margin: 8px 0; color: #bd5c40; font-size: 14px; }
+.teacher-card-body p { margin: 8px 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.teacher-card-body .education { color: #355148; }
+.tag-row { display: flex; gap: 6px; }
+.tag-row i { padding: 5px 8px; color: #50655d; background: #f2f0e8; font-size: 11px; font-style: normal; }
+.teacher-card > button { grid-column: 1/-1; justify-self: end; color: var(--coral); background: transparent; border: 0; }
+
+.class-section { background: #f1efe6; }
+.class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.class-grid article { padding: 28px; background: white; border: 1px solid #e1e2da; }
+.class-grid article > span { padding: 5px 8px; color: var(--green); background: var(--green-soft); font-size: 11px; }
+.class-grid h3 { margin: 25px 0 8px; font: 800 22px Georgia, "Songti SC", serif; }
+.class-grid p { color: var(--coral); font-size: 13px; }
+.class-grid small { display: block; margin: 14px 0 26px; color: var(--muted); }
+.class-grid strong { font-size: 19px; }
+
+.about-section { padding: 92px max(8vw, 36px); text-align: center; }
+.about-section > h2 { max-width: 760px; margin: 0 auto; }
+.about-section > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 45px; background: var(--line); }
+.about-section article { padding: 34px; background: var(--paper); }
+.about-section article b { color: #d59a81; font: italic 38px Georgia, serif; }
+.about-section h3 { font: 800 20px Georgia, "Songti SC", serif; }
+.about-section p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.site-footer { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 42px max(5vw, 28px); color: var(--muted); background: #eeeade; font-size: 11px; }
+.site-footer p { max-width: 500px; text-align: center; }
+
+.teacher-onboarding { min-height: 100vh; background: var(--cream); }
+.onboarding-layout { width: min(1080px, calc(100% - 48px)); display: grid; grid-template-columns: .8fr 1.2fr; gap: 65px; align-items: start; margin: 0 auto; padding: 72px 0; }
+.onboarding-layout > aside { position: sticky; top: 140px; }
+.onboarding-layout aside h1 { margin: 0; font: 800 clamp(42px, 4.8vw, 65px)/1.15 Georgia, "Songti SC", serif; }
+.onboarding-layout aside > p { color: var(--muted); line-height: 1.9; }
+.onboarding-layout ol { margin: 34px 0 0; padding: 0; list-style: none; }
+.onboarding-layout li { display: flex; align-items: center; gap: 12px; margin: 15px 0; color: #52675f; }
+.onboarding-layout li b { width: 28px; height: 28px; display: grid; place-items: center; color: white; background: var(--green); border-radius: 50%; }
+.onboarding-card { padding: 38px; background: white; border: 1px solid var(--line); box-shadow: 0 20px 50px #234a3912; }
+.onboarding-card h2, .publish-modal h2 { margin: 0 0 9px; font: 800 32px Georgia, "Songti SC", serif; }
+.onboarding-card > p, .modal-note { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.onboarding-card form, .publish-modal form { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; margin-top: 26px; }
+.onboarding-card label, .publish-modal label { color: #40564e; font-size: 12px; font-weight: 700; }
+.onboarding-card input, .onboarding-card textarea, .onboarding-card select, .publish-modal input, .publish-modal textarea { width: 100%; display: block; margin-top: 7px; padding: 13px; background: white; border: 1px solid #d7ded8; outline-color: #739487; }
+.onboarding-card textarea, .publish-modal textarea { min-height: 98px; resize: vertical; }
+.full-field { grid-column: 1/-1; }
+.existing-button { width: 100%; margin-top: 14px; padding: 10px; color: var(--muted); background: transparent; border: 0; font-size: 12px; }
+.form-error { color: #b34136; text-align: center; }
+.honeypot { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; }
+
+.plaza-page { min-height: calc(100vh - 82px); background: #f6f3ea; }
+.plaza-hero { padding: 75px max(8vw, 36px) 64px; color: white; background: var(--green); }
+.plaza-hero h1 { max-width: 760px; margin: 0; font: 800 clamp(40px, 4.7vw, 65px)/1.18 Georgia, "Songti SC", serif; }
+.plaza-hero p { color: #c7d8d1; font-size: 16px; }
+.plaza-hero > div { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.plaza-hero > div span { padding: 7px 11px; background: #ffffff12; border: 1px solid #ffffff20; font-size: 11px; }
+.plaza-content { padding: 45px max(8vw, 36px) 90px; }
+.plaza-filter { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
+.plaza-filter strong { font: 800 25px Georgia, "Songti SC", serif; }
+.plaza-filter button { margin-left: 7px; padding: 7px 13px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 18px; }
+.plaza-filter button.active { color: white; background: var(--green); border-color: var(--green); }
+.task-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.task-card { padding: 27px; background: white; border: 1px solid var(--line); }
+.task-card > div:first-child { display: flex; justify-content: space-between; }
+.task-card > div:first-child span { padding: 4px 8px; color: #b95035; background: #f8e6de; font-size: 11px; }
+.task-card > div:first-child small { color: #95a19c; }
+.task-card h2 { margin: 22px 0; font: 800 25px Georgia, "Songti SC", serif; }
+.task-card dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.task-card dl div { padding: 11px; background: #f5f4ee; }
+.task-card dt { color: #8a9892; font-size: 10px; }
+.task-card dd { margin: 5px 0 0; font-size: 12px; }
+.task-card > p { min-height: 48px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.task-card > button { padding: 10px 0; color: var(--coral); background: transparent; border: 0; font-weight: 700; }
+.contact-rules { margin-top: 20px; padding: 23px 27px; color: #4d645b; background: #e5ede5; }
+.contact-rules p { margin-bottom: 0; font-size: 13px; line-height: 1.7; }
+
+.overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; overflow: auto; background: #173d36ce; }
+.close-button { position: absolute; top: 12px; right: 17px; z-index: 2; color: #60736a; background: transparent; border: 0; font-size: 30px; }
+.teacher-profile, .publish-modal { position: relative; width: min(820px, 100%); max-height: 92vh; overflow: auto; background: var(--paper); box-shadow: 0 30px 80px #0004; }
+.profile-top { display: flex; align-items: center; gap: 25px; padding: 42px; background: var(--green-soft); }
+.avatar.large { width: 98px; height: 112px; font-size: 40px; }
+.profile-top h2 { margin: 0 0 8px; font: 800 38px Georgia, "Songti SC", serif; }
+.profile-top strong { color: var(--coral); }
+.profile-content { display: grid; grid-template-columns: 1fr 260px; gap: 40px; padding: 38px 42px; }
+.profile-content h3 { margin-bottom: 5px; font: 800 18px Georgia, "Songti SC", serif; }
+.profile-content p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.profile-content aside { padding-left: 28px; border-left: 1px solid var(--line); }
+.profile-content aside a { display: block; margin-bottom: 22px; color: var(--coral); }
+.profile-content aside .primary-button { width: 100%; }
+.profile-content aside small { display: block; margin-top: 12px; color: #8b9892; text-align: center; }
+.publish-modal { width: min(640px, 100%); padding: 42px 48px; }
+.fast-option { display: flex !important; align-items: flex-start; gap: 12px; padding: 16px; background: #f8eee6; border: 1px solid #f0d5c5; cursor: pointer; }
+.fast-option > input { width: 18px; margin: 2px 0 0; }
+.fast-option span { flex: 1; }
+.fast-option b, .fast-option small { display: block; }
+.fast-option small { margin-top: 5px; color: #8b6c5d; font-weight: 400; }
+.success-state { padding: 28px 5px; text-align: center; }
+.success-state > span { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto 22px; color: var(--green); background: var(--green-soft); border-radius: 50%; font-size: 27px; }
+.success-state p { color: var(--muted); line-height: 1.8; }
+
+@media (max-width: 900px) {
+  .site-nav nav, .portal-header nav { display: none; }
+  .role-choices, .parent-hero, .onboarding-layout { grid-template-columns: 1fr; }
+  .role-intro { margin-top: 7vh; }
+  .parent-hero { gap: 50px; }
+  .hero-note { display: none; }
+  .teacher-grid, .task-grid { grid-template-columns: 1fr; }
+  .class-grid, .about-section > div { grid-template-columns: 1fr; }
+  .onboarding-layout > aside { position: static; }
+  .site-footer { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .brand { font-size: 15px; }
+  .brand small, .site-nav .text-button { display: none; }
+  .site-nav, .portal-header { padding: 0 15px; }
+  .role-gate { padding: 24px 18px; }
+  .role-intro h1 { font-size: 38px; }
+  .role-choice { min-height: 245px; padding: 27px; }
+  .role-choice > span { position: static; width: 58px; height: 64px; margin-bottom: 18px; font-size: 26px; }
+  .role-choice p { min-height: auto; }
+  .parent-hero, .content-section, .about-section, .plaza-hero, .plaza-content { padding-left: 20px; padding-right: 20px; }
+  .parent-hero h1 { font-size: 43px; }
+  .section-heading { display: block; }
+  .teacher-search { margin-top: 20px; }
+  .teacher-card { grid-template-columns: 58px 1fr; padding: 18px; }
+  .avatar { width: 56px; height: 66px; }
+  .onboarding-layout { width: calc(100% - 28px); padding: 45px 0; }
+  .onboarding-card, .publish-modal { padding: 32px 22px; }
+  .onboarding-card form, .publish-modal form { grid-template-columns: 1fr; }
+  .onboarding-card label, .publish-modal label { grid-column: 1/-1; }
+  .plaza-filter { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .plaza-filter button { margin: 0 5px 6px 0; }
+  .task-card dl { grid-template-columns: 1fr; }
+  .profile-top { padding: 45px 24px 28px; align-items: flex-start; }
+  .profile-content { grid-template-columns: 1fr; padding: 28px 24px; }
+  .profile-content aside { padding: 20px 0 0; border: 0; border-top: 1px solid var(--line); }
+}
