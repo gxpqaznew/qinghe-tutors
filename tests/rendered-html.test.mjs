@@ -12,6 +12,8 @@ test("uses the university skill-exchange positioning and both role entry points"
   assert.match(marketplace, /我会这个/);
   assert.match(marketplace, /技能名片/);
   assert.match(marketplace, /学习心得/);
+  assert.match(marketplace, /高数与线代梳理/);
+  assert.match(marketplace, /大学课程/);
 });
 
 test("supports creator, request, and experience submissions", async () => {

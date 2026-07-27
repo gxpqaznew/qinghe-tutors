@@ -71,6 +71,20 @@ const creators: Creator[] = [
   },
   {
     id: 3,
+    name: "吴嘉树",
+    initials: "吴",
+    university: "电子科技大学",
+    major: "数学与应用数学 · 大三",
+    skill: "高数与线代梳理",
+    category: "大学课程",
+    mode: "线上 60 分钟",
+    price: "¥45 / 次",
+    intro: "围绕极限、微积分、矩阵和线性空间讲概念与解题思路，不代做作业或考试。",
+    proof: "有校内朋辈辅导经历",
+    color: "navy",
+  },
+  {
+    id: 4,
     name: "唐可",
     initials: "唐",
     university: "西南交通大学",
@@ -84,7 +98,7 @@ const creators: Creator[] = [
     color: "gold",
   },
   {
-    id: 4,
+    id: 5,
     name: "许知遥",
     initials: "许",
     university: "西南财经大学",
@@ -98,7 +112,7 @@ const creators: Creator[] = [
     color: "green",
   },
   {
-    id: 5,
+    id: 6,
     name: "叶青",
     initials: "叶",
     university: "成都理工大学",
@@ -112,7 +126,7 @@ const creators: Creator[] = [
     color: "violet",
   },
   {
-    id: 6,
+    id: 7,
     name: "陈一",
     initials: "陈",
     university: "四川音乐学院",
@@ -159,6 +173,15 @@ const experiences: Experience[] = [
 
 const sampleRequests: SkillRequest[] = [
   {
+    id: "sample-0",
+    title: "想把高数极限和导数重新梳理一遍",
+    category: "大学课程",
+    mode: "线上",
+    budget: "40–70 元/次",
+    deadline: "下周开始",
+    description: "大一课程，希望以概念和典型例题为主，不代做作业或考试。",
+  },
+  {
     id: "sample-1",
     title: "想找同学帮我优化社团招新 PPT",
     category: "设计表达",
@@ -196,7 +219,7 @@ const sampleRequests: SkillRequest[] = [
   },
 ];
 
-const categories = ["全部", "设计表达", "编程与数据", "摄影影像", "语言表达", "兴趣生活"];
+const categories = ["全部", "大学课程", "设计表达", "编程与数据", "摄影影像", "语言表达", "兴趣生活"];
 
 async function postForm(url: string, form: HTMLFormElement) {
   const payload = Object.fromEntries(new FormData(form).entries());
@@ -355,7 +378,7 @@ export function Marketplace() {
           <div className="hero-copy">
             <span className="eyebrow">大学生技能交换所</span>
             <h1>学校里，总有人<br />刚好会你想学的。</h1>
-            <p>找同学学一项实用技能、完成一次小服务，或者看看别人走过的学习弯路。身份清楚、需求具体、价格透明。</p>
+            <p>找同学搞懂一门大学课程、学一项实用技能、完成一次小服务，或者看看别人走过的学习弯路。身份清楚、需求具体、价格透明。</p>
             <div className="hero-actions">
               <a className="primary-button" href="#skills">逛逛技能</a>
               <button className="secondary-button" onClick={() => setRequestOpen(true)}>免费发需求</button>
@@ -385,13 +408,16 @@ export function Marketplace() {
               <span className="eyebrow">技能名片</span>
               <h2>从一个具体的小需求开始</h2>
             </div>
-            <input
-              className="skill-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索技能、学校或专业"
-              aria-label="搜索技能、学校或专业"
-            />
+            <div className="search-stack">
+              <small>当前展示为功能示例，真实资料上线前会经过审核。</small>
+              <input
+                className="skill-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="搜索课程、技能、学校或专业"
+                aria-label="搜索课程、技能、学校或专业"
+              />
+            </div>
           </div>
           <div className="category-tabs" aria-label="技能分类">
             {categories.map((item) => (
@@ -401,7 +427,7 @@ export function Marketplace() {
           <div className="creator-grid">
             {filteredCreators.map((creator) => (
               <article className="creator-card" key={creator.id} onClick={() => setActiveCreator(creator)}>
-                <div className="card-topline"><span>{creator.category}</span><b>{creator.price}</b></div>
+                <div className="card-topline"><span>{creator.category} · 示例</span><b>{creator.price}</b></div>
                 <h3>{creator.skill}</h3>
                 <p>{creator.intro}</p>
                 <div className="creator-person">
@@ -444,7 +470,7 @@ export function Marketplace() {
             <h2>帮助学习，不替别人完成学习。</h2>
           </div>
           <div className="rules-grid">
-            <article><b>可以</b><p>技能陪练、作品优化、经验分享、公开作品展示和真实的小型服务。</p></article>
+            <article><b>可以</b><p>大学课程知识讲解、技能陪练、作品优化、经验分享、公开作品展示和真实的小型服务。</p></article>
             <article><b>不可以</b><p>代写作业或论文、替考作弊、伪造证明，以及任何侵犯版权或隐私的交易。</p></article>
             <article><b>先说清</b><p>交付内容、时间、价格与修改次数都应在开始前确认；平台首版暂不代收款。</p></article>
           </div>
@@ -576,7 +602,7 @@ function CreatorOnboarding({
             <label>所在城市<input name="city" required placeholder="例如：成都" /></label>
             <label>学校<input name="university" required placeholder="例如：四川大学" /></label>
             <label>专业与年级<input name="majorGrade" required placeholder="例如：新闻传播，大三" /></label>
-            <label>你会的技能<input name="skill" required placeholder="例如：PPT视觉优化" /></label>
+            <label>你会的课程 / 技能<input name="skill" required placeholder="例如：高数线代 / PPT视觉优化" /></label>
             <label>服务方式<input name="mode" required placeholder="例如：线上交付 / 成都线下" /></label>
             <label className="full-field">技能与服务说明<textarea name="serviceIntro" required placeholder="你能具体帮助什么、如何完成、哪些事情不做…" /></label>
             <label className="full-field">公开作品或主页链接（选填）<input name="workUrl" type="url" placeholder="https://" /></label>
@@ -652,7 +678,7 @@ function CreatorPlaza({
           <div className="request-grid">
             {requests.map((request, index) => (
               <article className="request-card" key={request.id}>
-                <div><span>{index < 2 ? "新发布" : request.category}</span><small>{request.mode}</small></div>
+                <div><span>{typeof request.id === "string" ? "示例需求" : index < 2 ? "新发布" : request.category}</span><small>{request.mode}</small></div>
                 <h2>{request.title}</h2>
                 <dl>
                   <div><dt>分类</dt><dd>{request.category}</dd></div>
@@ -666,7 +692,7 @@ function CreatorPlaza({
           </div>
           <aside className="boundary-note" id="boundary">
             <strong>交易边界</strong>
-            <p>可以教方法、陪练和优化表达；不得代写课程作业、实验报告或论文，不得替考、伪造材料或帮助实施学术不端。</p>
+            <p>可以讲解高数、线代等大学课程，教方法、陪练和优化表达；不得代写课程作业、实验报告或论文，不得替考、伪造材料或帮助实施学术不端。</p>
           </aside>
         </section>
       </main>
