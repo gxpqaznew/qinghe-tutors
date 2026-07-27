@@ -11,6 +11,7 @@ export async function GET() {
       .select({
         id: skillRequests.id,
         title: skillRequests.title,
+        university: skillRequests.university,
         category: skillRequests.category,
         mode: skillRequests.mode,
         budget: skillRequests.budget,
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
 
     const values = {
       title: clean(body.title, 100),
+      university: clean(body.university, 100),
       category: clean(body.category, 40),
       mode: clean(body.mode, 80),
       budget: clean(body.budget, 60),
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
       status: "pending",
     };
 
-    if (!values.title || !values.category || !values.mode || !values.budget || !values.deadline || !values.description || !values.contact) {
+    if (!values.title || !values.university || !values.category || !values.mode || !values.budget || !values.deadline || !values.description || !values.contact) {
       return Response.json({ error: "请完整填写必填信息" }, { status: 400 });
     }
 

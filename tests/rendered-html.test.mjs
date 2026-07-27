@@ -54,3 +54,19 @@ test("enforces individual-to-individual participation and rejects intermediaries
   assert.match(creatorApi, /平台仅接受个人入驻/);
   assert.match(requestApi, /平台仅接受个人需求/);
 });
+
+test("supports same-school discovery without presenting self-reported schools as verified", async () => {
+  const [marketplace, requestApi, schema] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/api/skill-requests/route.ts", root), "utf8"),
+    readFile(new URL("db/schema.ts", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /我的学校/);
+  assert.match(marketplace, /只看同校/);
+  assert.match(marketplace, /不等于学生身份已认证/);
+  assert.match(marketplace, /同校 · 待认证/);
+  assert.match(requestApi, /university:\s*skillRequests\.university/);
+  assert.match(schema, /schoolVerificationStatus/);
+  assert.match(schema, /default\("unverified"\)/);
+});

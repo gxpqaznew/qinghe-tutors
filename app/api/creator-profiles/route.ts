@@ -26,6 +26,7 @@ export async function POST(request: Request) {
       workUrl: clean(body.workUrl, 300),
       contact: clean(body.contact, 80),
       individualConfirmed: 1,
+      schoolVerificationStatus: "unverified",
       status: "pending",
     };
 

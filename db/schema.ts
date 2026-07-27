@@ -48,6 +48,7 @@ export const creatorProfiles = sqliteTable("creator_profiles", {
   workUrl: text("work_url").notNull().default(""),
   contact: text("contact").notNull(),
   individualConfirmed: integer("individual_confirmed").notNull().default(0),
+  schoolVerificationStatus: text("school_verification_status").notNull().default("unverified"),
   status: text("status").notNull().default("pending"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -55,6 +56,7 @@ export const creatorProfiles = sqliteTable("creator_profiles", {
 export const skillRequests = sqliteTable("skill_requests", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
+  university: text("university").notNull().default(""),
   category: text("category").notNull(),
   mode: text("mode").notNull(),
   budget: text("budget").notNull(),

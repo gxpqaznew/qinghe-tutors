@@ -22,6 +22,7 @@ type Creator = {
 type SkillRequest = {
   id: number | string;
   title: string;
+  university: string;
   category: string;
   mode: string;
   budget: string;
@@ -175,6 +176,7 @@ const sampleRequests: SkillRequest[] = [
   {
     id: "sample-0",
     title: "想把高数极限和导数重新梳理一遍",
+    university: "电子科技大学",
     category: "大学课程",
     mode: "线上",
     budget: "40–70 元/次",
@@ -184,6 +186,7 @@ const sampleRequests: SkillRequest[] = [
   {
     id: "sample-1",
     title: "想找同学帮我优化社团招新 PPT",
+    university: "四川大学",
     category: "设计表达",
     mode: "线上",
     budget: "80–150 元",
@@ -193,6 +196,7 @@ const sampleRequests: SkillRequest[] = [
   {
     id: "sample-2",
     title: "零基础学会用 Python 整理问卷数据",
+    university: "西南财经大学",
     category: "编程与数据",
     mode: "成都 / 线上",
     budget: "50–80 元/次",
@@ -202,6 +206,7 @@ const sampleRequests: SkillRequest[] = [
   {
     id: "sample-3",
     title: "毕业季校园人像拍摄",
+    university: "西南交通大学",
     category: "摄影影像",
     mode: "成都线下",
     budget: "100–200 元",
@@ -211,6 +216,7 @@ const sampleRequests: SkillRequest[] = [
   {
     id: "sample-4",
     title: "找一位同学陪练英语面试",
+    university: "成都理工大学",
     category: "语言表达",
     mode: "线上",
     budget: "30–60 元/次",
@@ -220,6 +226,7 @@ const sampleRequests: SkillRequest[] = [
 ];
 
 const categories = ["全部", "大学课程", "设计表达", "编程与数据", "摄影影像", "语言表达", "兴趣生活"];
+const universitySuggestions = ["四川大学", "电子科技大学", "西南交通大学", "西南财经大学", "成都理工大学", "四川音乐学院"];
 
 async function postForm(url: string, form: HTMLFormElement) {
   const payload = Object.fromEntries(new FormData(form).entries());
@@ -244,11 +251,14 @@ export function Marketplace() {
   const [formError, setFormError] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
+  const [school, setSchool] = useState("");
+  const [sameSchoolOnly, setSameSchoolOnly] = useState(false);
 
   useEffect(() => {
     const savedRole = localStorage.getItem("campus-role");
     if (savedRole === "learner" || savedRole === "creator") setRole(savedRole);
     setCreatorReady(localStorage.getItem("campus-creator-ready") === "true");
+    setSchool(localStorage.getItem("campus-university") || "");
     setHydrated(true);
   }, []);
 
@@ -257,9 +267,20 @@ export function Marketplace() {
     return creators.filter((creator) => {
       const categoryMatches = category === "全部" || creator.category === category;
       const queryMatches = !key || `${creator.name}${creator.university}${creator.major}${creator.skill}${creator.category}`.includes(key);
-      return categoryMatches && queryMatches;
+      const schoolMatches = !sameSchoolOnly || (!!school && creator.university === school);
+      return categoryMatches && queryMatches && schoolMatches;
     });
-  }, [category, query]);
+  }, [category, query, sameSchoolOnly, school]);
+
+  function updateSchool(nextSchool: string) {
+    const normalized = nextSchool.trim();
+    setSchool(nextSchool);
+    if (normalized) localStorage.setItem("campus-university", normalized);
+    else {
+      localStorage.removeItem("campus-university");
+      setSameSchoolOnly(false);
+    }
+  }
 
   function chooseRole(nextRole: Role) {
     localStorage.setItem("campus-role", nextRole);
@@ -277,11 +298,16 @@ export function Marketplace() {
 
   async function submitCreator(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const submittedSchool = String(new FormData(event.currentTarget).get("university") || "").trim();
     setSubmitting(true);
     setFormError("");
     try {
       await postForm("/api/creator-profiles", event.currentTarget);
       localStorage.setItem("campus-creator-ready", "true");
+      if (submittedSchool) {
+        localStorage.setItem("campus-university", submittedSchool);
+        setSchool(submittedSchool);
+      }
       setCreatorReady(true);
       setSubmitted("creator");
     } catch (error) {
@@ -293,10 +319,15 @@ export function Marketplace() {
 
   async function submitRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const submittedSchool = String(new FormData(event.currentTarget).get("university") || "").trim();
     setSubmitting(true);
     setFormError("");
     try {
       await postForm("/api/skill-requests", event.currentTarget);
+      if (submittedSchool) {
+        localStorage.setItem("campus-university", submittedSchool);
+        setSchool(submittedSchool);
+      }
       setSubmitted("request");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "提交失败");
@@ -324,6 +355,7 @@ export function Marketplace() {
   if (role === "creator" && !creatorReady) {
     return (
       <CreatorOnboarding
+        school={school}
         onSubmit={submitCreator}
         submitting={submitting}
         error={formError}
@@ -338,6 +370,8 @@ export function Marketplace() {
   if (role === "creator") {
     return (
       <CreatorPlaza
+        school={school}
+        onSchoolChange={updateSchool}
         onSwitch={switchRole}
         onPublish={() => {
           setSubmitted(null);
@@ -419,6 +453,12 @@ export function Marketplace() {
               />
             </div>
           </div>
+          <SchoolFilter
+            school={school}
+            sameSchoolOnly={sameSchoolOnly}
+            onSchoolChange={updateSchool}
+            onSameSchoolChange={setSameSchoolOnly}
+          />
           <div className="category-tabs" aria-label="技能分类">
             {categories.map((item) => (
               <button className={category === item ? "active" : ""} key={item} onClick={() => setCategory(item)}>{item}</button>
@@ -427,7 +467,10 @@ export function Marketplace() {
           <div className="creator-grid">
             {filteredCreators.map((creator) => (
               <article className="creator-card" key={creator.id} onClick={() => setActiveCreator(creator)}>
-                <div className="card-topline"><span>{creator.category} · 示例</span><b>{creator.price}</b></div>
+                <div className="card-topline">
+                  <span>{school && creator.university === school ? "同校 · 待认证" : `${creator.category} · 示例`}</span>
+                  <b>{creator.price}</b>
+                </div>
                 <h3>{creator.skill}</h3>
                 <p>{creator.intro}</p>
                 <div className="creator-person">
@@ -437,6 +480,13 @@ export function Marketplace() {
                 <div className="card-footer"><span>{creator.mode}</span><button>查看主页 →</button></div>
               </article>
             ))}
+            {!filteredCreators.length && (
+              <div className="empty-state">
+                <strong>暂时没有找到这所学校的技能名片</strong>
+                <p>可以关闭“只看同校”继续浏览，或免费发布需求等同校同学回应。</p>
+                <button className="secondary-button compact" onClick={() => setSameSchoolOnly(false)}>查看全部学校</button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -495,7 +545,9 @@ export function Marketplace() {
                 <span className="eyebrow">{activeCreator.category}</span>
                 <h2>{activeCreator.skill}</h2>
                 <strong>{activeCreator.name} · {activeCreator.university}</strong>
-                <small className="individual-badge">个人技能分享者 · 示例资料</small>
+                <small className="individual-badge">
+                  {school && activeCreator.university === school ? "同校 · 学校信息待认证" : "个人技能分享者 · 示例资料"}
+                </small>
               </div>
             </div>
             <div className="profile-content">
@@ -520,6 +572,7 @@ export function Marketplace() {
 
       {requestOpen && (
         <RequestModal
+          school={school}
           submitted={submitted === "request"}
           submitting={submitting}
           error={formError}
@@ -532,6 +585,49 @@ export function Marketplace() {
         />
       )}
     </>
+  );
+}
+
+function SchoolFilter({
+  school,
+  sameSchoolOnly,
+  onSchoolChange,
+  onSameSchoolChange,
+}: {
+  school: string;
+  sameSchoolOnly: boolean;
+  onSchoolChange: (school: string) => void;
+  onSameSchoolChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="school-filter">
+      <div className="school-picker">
+        <label htmlFor="my-university">我的学校</label>
+        <input
+          id="my-university"
+          list="university-options"
+          value={school}
+          onChange={(event) => onSchoolChange(event.target.value)}
+          placeholder="输入学校全称"
+        />
+        <datalist id="university-options">
+          {universitySuggestions.map((university) => <option key={university} value={university} />)}
+        </datalist>
+      </div>
+      <label className={`same-school-toggle ${!school.trim() ? "disabled" : ""}`}>
+        <input
+          type="checkbox"
+          checked={sameSchoolOnly}
+          disabled={!school.trim()}
+          onChange={(event) => onSameSchoolChange(event.target.checked)}
+        />
+        <span>只看同校</span>
+      </label>
+      <p>
+        <b>同校标签只表示双方填写的学校名称一致，不等于学生身份已认证。</b>
+        只有“已认证”徽章才代表完成核验；联系前请核验身份，不提前转账。
+      </p>
+    </div>
   );
 }
 
@@ -568,12 +664,14 @@ function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
 }
 
 function CreatorOnboarding({
+  school,
   onSubmit,
   submitting,
   error,
   onSwitch,
   onExisting,
 }: {
+  school: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   submitting: boolean;
   error: string;
@@ -603,7 +701,13 @@ function CreatorOnboarding({
           <form onSubmit={onSubmit}>
             <label>昵称 / 姓名<input name="name" required placeholder="例如：林小满" /></label>
             <label>所在城市<input name="city" required placeholder="例如：成都" /></label>
-            <label>学校<input name="university" required placeholder="例如：四川大学" /></label>
+            <label>
+              学校
+              <input name="university" required defaultValue={school} list="university-options" placeholder="例如：四川大学" />
+              <datalist id="university-options">
+                {universitySuggestions.map((university) => <option key={university} value={university} />)}
+              </datalist>
+            </label>
             <label>专业与年级<input name="majorGrade" required placeholder="例如：新闻传播，大三" /></label>
             <label>你会的课程 / 技能<input name="skill" required placeholder="例如：高数线代 / PPT视觉优化" /></label>
             <label>服务方式<input name="mode" required placeholder="例如：线上交付 / 成都线下" /></label>
@@ -626,6 +730,8 @@ function CreatorOnboarding({
 }
 
 function CreatorPlaza({
+  school,
+  onSchoolChange,
   onSwitch,
   onPublish,
   experienceOpen,
@@ -635,6 +741,8 @@ function CreatorPlaza({
   onSubmitExperience,
   onCloseExperience,
 }: {
+  school: string;
+  onSchoolChange: (school: string) => void;
   onSwitch: () => void;
   onPublish: () => void;
   experienceOpen: boolean;
@@ -645,6 +753,7 @@ function CreatorPlaza({
   onCloseExperience: () => void;
 }) {
   const [requests, setRequests] = useState<SkillRequest[]>(sampleRequests);
+  const [sameSchoolOnly, setSameSchoolOnly] = useState(false);
 
   useEffect(() => {
     fetch("/api/skill-requests")
@@ -656,6 +765,11 @@ function CreatorPlaza({
         // 网络异常时保留示例内容。
       });
   }, []);
+
+  const visibleRequests = useMemo(
+    () => requests.filter((request) => !sameSchoolOnly || (!!school && request.university === school)),
+    [requests, sameSchoolOnly, school],
+  );
 
   return (
     <>
@@ -679,10 +793,19 @@ function CreatorPlaza({
             <strong>最新技能需求</strong>
             <button className="secondary-button compact" onClick={onPublish}>写一条学习心得</button>
           </div>
+          <SchoolFilter
+            school={school}
+            sameSchoolOnly={sameSchoolOnly}
+            onSchoolChange={onSchoolChange}
+            onSameSchoolChange={setSameSchoolOnly}
+          />
           <div className="request-grid">
-            {requests.map((request, index) => (
+            {visibleRequests.map((request, index) => (
               <article className="request-card" key={request.id}>
-                <div><span>{typeof request.id === "string" ? "示例需求" : index < 2 ? "新发布" : request.category}</span><small>{request.mode}</small></div>
+                <div>
+                  <span>{school && request.university === school ? "同校 · 待认证" : typeof request.id === "string" ? "示例需求" : index < 2 ? "新发布" : request.category}</span>
+                  <small>{request.university} · {request.mode}</small>
+                </div>
                 <h2>{request.title}</h2>
                 <dl>
                   <div><dt>分类</dt><dd>{request.category}</dd></div>
@@ -693,6 +816,13 @@ function CreatorPlaza({
                 <button onClick={() => alert("首版正在补充双方同意后的联系流程，需求方联系方式不会直接公开。")}>我能帮忙，申请联系 →</button>
               </article>
             ))}
+            {!visibleRequests.length && (
+              <div className="empty-state">
+                <strong>暂时没有同校需求</strong>
+                <p>关闭“只看同校”即可查看其他学校同学发布的需求。</p>
+                <button className="secondary-button compact" onClick={() => setSameSchoolOnly(false)}>查看全部学校</button>
+              </div>
+            )}
           </div>
           <aside className="boundary-note" id="boundary">
             <strong>个人交易边界</strong>
@@ -715,12 +845,14 @@ function CreatorPlaza({
 }
 
 function RequestModal({
+  school,
   submitted,
   submitting,
   error,
   onSubmit,
   onClose,
 }: {
+  school: string;
   submitted: boolean;
   submitting: boolean;
   error: string;
@@ -740,6 +872,7 @@ function RequestModal({
             <p className="modal-note">越具体，越容易遇到真正能帮忙的同学。</p>
             <form onSubmit={onSubmit}>
               <label className="full-field">需求标题<input name="title" required placeholder="例如：想找同学帮我优化社团招新 PPT" /></label>
+              <label>学校<input name="university" required defaultValue={school} list="university-options" placeholder="例如：四川大学" /></label>
               <label>技能分类<select name="category" required defaultValue=""><option value="" disabled>请选择</option>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select></label>
               <label>线上 / 线下<input name="mode" required placeholder="例如：线上 / 成都线下" /></label>
               <label>预算<input name="budget" required placeholder="例如：80–150 元" /></label>
