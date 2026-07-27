@@ -1,5 +1,5 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M8 25C8 12 15 5 27 5C38 5 43 13 41 25C39 37 32 43 21 42C11 41 7 34 8 25Z" fill="#174C42"/>
-  <circle cx="36" cy="11" r="6" fill="#E36F4D"/>
-  <text x="24" y="31" fill="white" font-size="21" font-weight="700" text-anchor="middle" font-family="serif">我</text>
+  <rect x="5" y="5" width="38" height="38" rx="12" fill="#162A46"/>
+  <circle cx="38" cy="10" r="6" fill="#EF6D50"/>
+  <text x="24" y="31" fill="white" font-size="20" font-weight="800" text-anchor="middle" font-family="serif">技</text>
 </svg>

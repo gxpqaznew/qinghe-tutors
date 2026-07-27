@@ -35,3 +35,44 @@ export const parentNeeds = sqliteTable("parent_needs", {
   status: text("status").notNull().default("draft"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const creatorProfiles = sqliteTable("creator_profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  university: text("university").notNull(),
+  majorGrade: text("major_grade").notNull(),
+  skill: text("skill").notNull(),
+  mode: text("mode").notNull(),
+  serviceIntro: text("service_intro").notNull(),
+  workUrl: text("work_url").notNull().default(""),
+  contact: text("contact").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const skillRequests = sqliteTable("skill_requests", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
+  mode: text("mode").notNull(),
+  budget: text("budget").notNull(),
+  deadline: text("deadline").notNull(),
+  description: text("description").notNull(),
+  contact: text("contact").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const experiencePosts = sqliteTable("experience_posts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  authorName: text("author_name").notNull(),
+  university: text("university").notNull(),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
+  sourceUrl: text("source_url").notNull().default(""),
+  summary: text("summary").notNull(),
+  content: text("content").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});

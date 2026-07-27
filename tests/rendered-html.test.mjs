@@ -4,36 +4,38 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("includes both role entry points and the teacher onboarding fields", async () => {
+test("uses the university skill-exchange positioning and both role entry points", async () => {
   const marketplace = await readFile(new URL("app/marketplace.tsx", root), "utf8");
 
-  assert.match(marketplace, /我是家长/);
-  assert.match(marketplace, /我是老师/);
-  assert.match(marketplace, /求贤广场/);
-  assert.match(marketplace, /name="name"/);
-  assert.match(marketplace, /name="gender"/);
-  assert.match(marketplace, /name="education"/);
-  assert.match(marketplace, /name="teachingExperience"/);
-  assert.match(marketplace, /name="demoUrl"/);
-  assert.match(marketplace, /name="contact"/);
+  assert.match(marketplace, /大学生技能交换所/);
+  assert.match(marketplace, /我想学 \/ 我需要/);
+  assert.match(marketplace, /我会这个/);
+  assert.match(marketplace, /技能名片/);
+  assert.match(marketplace, /学习心得/);
 });
 
-test("keeps publishing free and makes fast matching optional", async () => {
-  const [marketplace, parentApi] = await Promise.all([
-    readFile(new URL("app/marketplace.tsx", root), "utf8"),
-    readFile(new URL("app/api/parent-needs/route.ts", root), "utf8"),
-  ]);
+test("supports creator, request, and experience submissions", async () => {
+  const marketplace = await readFile(new URL("app/marketplace.tsx", root), "utf8");
 
-  assert.match(marketplace, /默认免费发布/);
-  assert.match(marketplace, /name="fastMatch"/);
-  assert.match(marketplace, /¥18 极速筛选/);
-  assert.match(parentApi, /paymentStatus: fastMatch \? "awaiting_payment" : "free"/);
+  assert.match(marketplace, /\/api\/creator-profiles/);
+  assert.match(marketplace, /\/api\/skill-requests/);
+  assert.match(marketplace, /\/api\/experience-posts/);
+  assert.match(marketplace, /name="university"/);
+  assert.match(marketplace, /name="skill"/);
+  assert.match(marketplace, /name="consent"/);
 });
 
-test("never returns parent contact details from the plaza endpoint", async () => {
-  const parentApi = await readFile(new URL("app/api/parent-needs/route.ts", root), "utf8");
-  const getHandler = parentApi.slice(parentApi.indexOf("export async function GET"), parentApi.indexOf("export async function POST"));
+test("never returns request contact details from the public endpoint", async () => {
+  const api = await readFile(new URL("app/api/skill-requests/route.ts", root), "utf8");
+  const getHandler = api.slice(api.indexOf("export async function GET"), api.indexOf("export async function POST"));
 
   assert.ok(getHandler.length > 0);
-  assert.doesNotMatch(getHandler, /contact:\s*parentNeeds\.contact/);
+  assert.doesNotMatch(getHandler, /contact:\s*skillRequests\.contact/);
+});
+
+test("states the academic integrity boundary", async () => {
+  const marketplace = await readFile(new URL("app/marketplace.tsx", root), "utf8");
+
+  assert.match(marketplace, /拒绝代写与作弊/);
+  assert.match(marketplace, /不得代写课程作业、实验报告或论文/);
 });

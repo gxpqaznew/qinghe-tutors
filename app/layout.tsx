@@ -6,21 +6,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const image = `${protocol}://${host}/og.png`;
+  const image = `${protocol}://${host}/og-student-skills.png`;
 
   return {
-    title: "我是老师我是家长｜老师与家长直接连接",
-    description: "老师免费入驻，家长免费发布需求；一对一和小班课都能找到合适的人。",
+    title: "大学生技能交换所｜技能、经验与真实需求",
+    description: "大学生之间分享技能、发布真实需求和交流学习经验的平台。",
     icons: { icon: "/favicon.svg" },
     openGraph: {
-      title: "我是老师我是家长",
-      description: "老师与家长，直接连接。",
+      title: "大学生技能交换所",
+      description: "把你会的，换成彼此的下一步。",
       images: [image],
     },
     twitter: {
       card: "summary_large_image",
-      title: "我是老师我是家长",
-      description: "老师与家长，直接连接。",
+      title: "大学生技能交换所",
+      description: "把你会的，换成彼此的下一步。",
       images: [image],
     },
   };
