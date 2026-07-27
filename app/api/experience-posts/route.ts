@@ -11,6 +11,9 @@ export async function POST(request: Request) {
     if (body.consent !== "on" && body.consent !== true) {
       return Response.json({ error: "请确认原创与公开展示授权" }, { status: 400 });
     }
+    if (body.individualConfirmed !== "on" && body.individualConfirmed !== true) {
+      return Response.json({ error: "平台仅接受个人投稿，请确认个人身份" }, { status: 400 });
+    }
 
     const values = {
       authorName: clean(body.authorName, 40),
@@ -20,6 +23,7 @@ export async function POST(request: Request) {
       sourceUrl: clean(body.sourceUrl, 300),
       summary: clean(body.summary, 300),
       content: clean(body.content, 3000),
+      individualConfirmed: 1,
       status: "pending",
     };
 

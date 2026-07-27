@@ -182,6 +182,7 @@ a { color: inherit; }
 .avatar.large { width: 88px; height: 98px; font-size: 34px; }
 .profile-top h2 { margin: 0 0 8px; color: var(--navy); font: 900 35px "Songti SC", serif; }
 .profile-top strong { color: var(--coral); }
+.individual-badge { display: block; margin-top: 7px; color: #52677e; font-size: 10px; }
 .profile-content { display: grid; grid-template-columns: 1fr 270px; gap: 38px; padding: 36px 40px; }
 .profile-content h3 { margin-bottom: 5px; color: var(--navy); font: 900 17px "Songti SC", serif; }
 .profile-content p { color: var(--muted); font-size: 13px; line-height: 1.8; }

@@ -384,9 +384,9 @@ export function Marketplace() {
               <button className="secondary-button" onClick={() => setRequestOpen(true)}>免费发需求</button>
             </div>
             <div className="trust-row">
-              <span>大学生真实背景</span>
+              <span>只允许个人对个人</span>
               <span>服务边界写清楚</span>
-              <span>拒绝代写与作弊</span>
+              <span>严禁机构与中介</span>
             </div>
           </div>
           <div className="hero-board" aria-label="平台热门技能">
@@ -467,19 +467,21 @@ export function Marketplace() {
         <section className="rules-section" id="rules">
           <div>
             <span className="eyebrow">交换规则</span>
-            <h2>帮助学习，不替别人完成学习。</h2>
+            <h2>个人找到个人，平台不允许任何中介。</h2>
           </div>
           <div className="rules-grid">
+            <article><b>只限个人</b><p>发布者和提供技能的人都必须代表自己，不得以机构、工作室、团队、招生代理或经纪人身份入驻。</p></article>
+            <article><b>严禁中介</b><p>不得代他人发布、批量招募、转卖订单、赚取差价或把用户导向培训机构；发现后直接停止展示。</p></article>
             <article><b>可以</b><p>大学课程知识讲解、技能陪练、作品优化、经验分享、公开作品展示和真实的小型服务。</p></article>
             <article><b>不可以</b><p>代写作业或论文、替考作弊、伪造证明，以及任何侵犯版权或隐私的交易。</p></article>
-            <article><b>先说清</b><p>交付内容、时间、价格与修改次数都应在开始前确认；平台首版暂不代收款。</p></article>
+            <article><b>平台边界</b><p>平台只提供个人资料展示和双方同意后的连接，不代理谈价、不转售订单、不从中加价；首版暂不代收款。</p></article>
           </div>
         </section>
       </main>
 
       <footer className="site-footer">
         <Brand />
-        <p>平台提供信息展示与需求连接。正式合作前，请双方核验身份、能力、价格与交付边界。</p>
+        <p>平台坚持个人对个人，严禁机构、中介、代理和订单转售。正式合作前，请双方核验身份、能力、价格与交付边界。</p>
         <span>© 2026 大学生技能交换所</span>
       </footer>
 
@@ -493,6 +495,7 @@ export function Marketplace() {
                 <span className="eyebrow">{activeCreator.category}</span>
                 <h2>{activeCreator.skill}</h2>
                 <strong>{activeCreator.name} · {activeCreator.university}</strong>
+                <small className="individual-badge">个人技能分享者 · 示例资料</small>
               </div>
             </div>
             <div className="profile-content">
@@ -596,7 +599,7 @@ function CreatorOnboarding({
         </aside>
         <div className="onboarding-card">
           <h2>建立技能主页</h2>
-          <p>入驻免费。联系方式仅用于审核和双方同意后的连接，不会直接公开。</p>
+          <p>仅接受大学生个人入驻。机构、工作室、中介、招生代理和替他人接单的账号不会通过审核。</p>
           <form onSubmit={onSubmit}>
             <label>昵称 / 姓名<input name="name" required placeholder="例如：林小满" /></label>
             <label>所在城市<input name="city" required placeholder="例如：成都" /></label>
@@ -607,6 +610,7 @@ function CreatorOnboarding({
             <label className="full-field">技能与服务说明<textarea name="serviceIntro" required placeholder="你能具体帮助什么、如何完成、哪些事情不做…" /></label>
             <label className="full-field">公开作品或主页链接（选填）<input name="workUrl" type="url" placeholder="https://" /></label>
             <label className="full-field">联系方式<input name="contact" required placeholder="手机号或微信号（不会直接公开）" /></label>
+            <label className="consent-field full-field"><input type="checkbox" name="individualConfirmed" required /><span>我确认以个人身份入驻，只发布本人能够完成的服务，不代表机构、工作室、中介、代理或他人接单。</span></label>
             <label className="consent-field full-field"><input type="checkbox" name="consent" required /><span>我同意平台保存以上资料用于审核和需求连接，并承诺不提供代写、替考等违规服务。</span></label>
             <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" />
             <button className="primary-button full-field" disabled={submitting}>
@@ -668,7 +672,7 @@ function CreatorPlaza({
           <span className="eyebrow">技能分享者端</span>
           <h1>别猜别人需要什么，<br />先看看真实需求。</h1>
           <p>只回应能力范围内的事情；先说清交付、价格和时间，再决定是否连接。</p>
-          <div><span>需求免费浏览</span><span>联系方式不公开</span><span>拒绝代写与作弊</span></div>
+          <div><span>只限个人对个人</span><span>联系方式不公开</span><span>严禁中介与机构</span></div>
         </section>
         <section className="plaza-content">
           <div className="plaza-filter">
@@ -691,8 +695,8 @@ function CreatorPlaza({
             ))}
           </div>
           <aside className="boundary-note" id="boundary">
-            <strong>交易边界</strong>
-            <p>可以讲解高数、线代等大学课程，教方法、陪练和优化表达；不得代写课程作业、实验报告或论文，不得替考、伪造材料或帮助实施学术不端。</p>
+            <strong>个人交易边界</strong>
+            <p>仅允许本人发布、本人沟通、本人提供服务。禁止机构、中介、代理、订单转售和赚取差价；可以讲解高数、线代等大学课程，但不得代写课程作业、实验报告或论文。</p>
           </aside>
         </section>
       </main>
@@ -742,6 +746,7 @@ function RequestModal({
               <label>希望完成时间<input name="deadline" required placeholder="例如：本周日" /></label>
               <label className="full-field">具体说明<textarea name="description" required placeholder="已有材料、希望得到什么、哪些部分需要帮助…" /></label>
               <label className="full-field">联系方式<input name="contact" required placeholder="手机号或微信号（不会直接公开）" /></label>
+              <label className="consent-field full-field"><input type="checkbox" name="individualConfirmed" required /><span>我确认这是本人的真实需求，不代表机构、中介、代理，也不会将联系结果转卖给他人。</span></label>
               <label className="consent-field full-field"><input type="checkbox" name="consent" required /><span>我同意平台保存资料用于需求审核和双方同意后的连接；本需求不涉及代写、替考或学术不端。</span></label>
               <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" />
               <button className="primary-button full-field" disabled={submitting}>{submitting ? "正在提交…" : "免费提交需求"}</button>
@@ -786,6 +791,7 @@ function ExperienceModal({
               <label>公开链接（选填）<input name="sourceUrl" type="url" placeholder="https://" /></label>
               <label className="full-field">一句话摘要<textarea name="summary" required placeholder="最值得别人提前知道的一件事…" /></label>
               <label className="full-field">正文<textarea name="content" required placeholder="我遇到的问题 / 我尝试的方法 / 最后的变化…" /></label>
+              <label className="consent-field full-field"><input type="checkbox" name="individualConfirmed" required /><span>我以个人身份投稿，不代表机构、中介、营销团队或代运营账号。</span></label>
               <label className="consent-field full-field"><input type="checkbox" name="consent" required /><span>这是我的原创经验，我同意平台审核并公开展示。</span></label>
               <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" />
               <button className="primary-button full-field" disabled={submitting}>{submitting ? "正在提交…" : "提交经验"}</button>
@@ -813,7 +819,7 @@ function Brand() {
   return (
     <a className="brand" href="#">
       <span className="brand-mark">技</span>
-      <span>大学生技能交换所<small>技能 · 经验 · 真实需求</small></span>
+      <span>大学生技能交换所<small>个人对个人 · 严禁中介</small></span>
     </a>
   );
 }

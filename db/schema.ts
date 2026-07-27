@@ -47,6 +47,7 @@ export const creatorProfiles = sqliteTable("creator_profiles", {
   serviceIntro: text("service_intro").notNull(),
   workUrl: text("work_url").notNull().default(""),
   contact: text("contact").notNull(),
+  individualConfirmed: integer("individual_confirmed").notNull().default(0),
   status: text("status").notNull().default("pending"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -60,6 +61,7 @@ export const skillRequests = sqliteTable("skill_requests", {
   deadline: text("deadline").notNull(),
   description: text("description").notNull(),
   contact: text("contact").notNull(),
+  individualConfirmed: integer("individual_confirmed").notNull().default(0),
   status: text("status").notNull().default("pending"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -73,6 +75,7 @@ export const experiencePosts = sqliteTable("experience_posts", {
   sourceUrl: text("source_url").notNull().default(""),
   summary: text("summary").notNull(),
   content: text("content").notNull(),
+  individualConfirmed: integer("individual_confirmed").notNull().default(0),
   status: text("status").notNull().default("pending"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });

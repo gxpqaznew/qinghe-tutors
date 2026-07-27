@@ -10,17 +10,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: "大学生技能交换所｜技能、经验与真实需求",
-    description: "大学生之间分享技能、发布真实需求和交流学习经验的平台。",
+    description: "坚持个人对个人、严禁中介的大学生技能交易与学习经验分享平台。",
     icons: { icon: "/favicon.svg" },
     openGraph: {
       title: "大学生技能交换所",
-      description: "把你会的，换成彼此的下一步。",
+      description: "个人对个人，严禁中介。把你会的，换成彼此的下一步。",
       images: [image],
     },
     twitter: {
       card: "summary_large_image",
       title: "大学生技能交换所",
-      description: "把你会的，换成彼此的下一步。",
+      description: "个人对个人，严禁中介。把你会的，换成彼此的下一步。",
       images: [image],
     },
   };

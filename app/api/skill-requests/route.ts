@@ -37,6 +37,9 @@ export async function POST(request: Request) {
     if (body.consent !== "on" && body.consent !== true) {
       return Response.json({ error: "请确认资料使用与平台规则" }, { status: 400 });
     }
+    if (body.individualConfirmed !== "on" && body.individualConfirmed !== true) {
+      return Response.json({ error: "平台仅接受个人需求，请确认个人身份" }, { status: 400 });
+    }
 
     const values = {
       title: clean(body.title, 100),
@@ -46,6 +49,7 @@ export async function POST(request: Request) {
       deadline: clean(body.deadline, 80),
       description: clean(body.description, 1000),
       contact: clean(body.contact, 80),
+      individualConfirmed: 1,
       status: "pending",
     };
 

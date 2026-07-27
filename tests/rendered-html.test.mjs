@@ -38,6 +38,19 @@ test("never returns request contact details from the public endpoint", async () 
 test("states the academic integrity boundary", async () => {
   const marketplace = await readFile(new URL("app/marketplace.tsx", root), "utf8");
 
-  assert.match(marketplace, /拒绝代写与作弊/);
   assert.match(marketplace, /不得代写课程作业、实验报告或论文/);
+});
+
+test("enforces individual-to-individual participation and rejects intermediaries", async () => {
+  const [marketplace, creatorApi, requestApi] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/api/creator-profiles/route.ts", root), "utf8"),
+    readFile(new URL("app/api/skill-requests/route.ts", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /个人对个人/);
+  assert.match(marketplace, /严禁中介/);
+  assert.match(marketplace, /name="individualConfirmed"/);
+  assert.match(creatorApi, /平台仅接受个人入驻/);
+  assert.match(requestApi, /平台仅接受个人需求/);
 });

@@ -11,6 +11,9 @@ export async function POST(request: Request) {
     if (body.consent !== "on" && body.consent !== true) {
       return Response.json({ error: "请确认资料使用与平台规则" }, { status: 400 });
     }
+    if (body.individualConfirmed !== "on" && body.individualConfirmed !== true) {
+      return Response.json({ error: "平台仅接受个人入驻，请确认个人身份" }, { status: 400 });
+    }
 
     const values = {
       name: clean(body.name, 40),
@@ -22,6 +25,7 @@ export async function POST(request: Request) {
       serviceIntro: clean(body.serviceIntro, 1200),
       workUrl: clean(body.workUrl, 300),
       contact: clean(body.contact, 80),
+      individualConfirmed: 1,
       status: "pending",
     };
 
