@@ -579,6 +579,10 @@ export function Marketplace() {
                 </div>
                 <h3>{creator.skill}</h3>
                 <p>{creator.intro}</p>
+                <div className="portfolio-label">
+                  <b>个人作品</b>
+                  <span>{creator.media?.length ? `${creator.media.length} 个图片 / 视频` : "暂未上传"}</span>
+                </div>
                 <div className="creator-person">
                   <div className={`avatar ${creator.color}`}>{creator.initials}</div>
                   <div><strong>{creator.name}</strong><small>{creator.university} · {creator.major}</small></div>
@@ -667,9 +671,8 @@ export function Marketplace() {
                 <h3>同学背景</h3>
                 <p>{activeCreator.major}；{activeCreator.proof}。</p>
                 {activeCreator.workUrl && <p><a href={activeCreator.workUrl} target="_blank" rel="noreferrer">查看公开作品或个人主页 →</a></p>}
-                {!!activeCreator.media?.length && (
-                  <>
-                    <h3>个人作品展示</h3>
+                <h3>个人作品展示</h3>
+                {activeCreator.media?.length ? (
                     <div className="profile-media-grid">
                       {activeCreator.media.map((media) => (
                         <figure key={media.id}>
@@ -680,7 +683,11 @@ export function Marketplace() {
                         </figure>
                       ))}
                     </div>
-                  </>
+                ) : (
+                  <div className="profile-media-empty">
+                    <b>暂未上传图片或视频</b>
+                    <span>真实用户上传并通过审核后，会在这里展示个人作品。</span>
+                  </div>
                 )}
                 <h3>方式与参考价</h3>
                 <p>{activeCreator.mode} · {activeCreator.price}</p>
