@@ -57,6 +57,13 @@
       "when": 1785240880417,
       "tag": "0007_safe_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1785243650250,
+      "tag": "0008_exotic_toxin",
+      "breakpoints": true
     }
   ]
 }

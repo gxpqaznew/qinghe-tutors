@@ -39,6 +39,9 @@ export const parentNeeds = sqliteTable("parent_needs", {
 export const creatorProfiles = sqliteTable("creator_profiles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
+  locationScope: text("location_scope").notNull().default("china"),
+  province: text("province").notNull().default(""),
+  country: text("country").notNull().default(""),
   city: text("city").notNull(),
   university: text("university").notNull(),
   majorGrade: text("major_grade").notNull(),

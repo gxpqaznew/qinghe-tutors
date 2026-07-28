@@ -70,6 +70,9 @@ export async function GET() {
       .select({
         id: creatorProfiles.id,
         name: creatorProfiles.name,
+        locationScope: creatorProfiles.locationScope,
+        province: creatorProfiles.province,
+        country: creatorProfiles.country,
         city: creatorProfiles.city,
         university: creatorProfiles.university,
         majorGrade: creatorProfiles.majorGrade,
@@ -169,8 +172,12 @@ export async function POST(request: Request) {
       return Response.json({ error: parsedWorkUrl.error }, { status: 400 });
     }
 
+    const locationScope = body.locationScope === "overseas" ? "overseas" : "china";
     const values = {
       name: clean(body.name, 40),
+      locationScope,
+      province: locationScope === "china" ? clean(body.province, 40) : "",
+      country: locationScope === "overseas" ? clean(body.country, 80) : "",
       city: clean(body.city, 40),
       university: clean(body.university, 100),
       majorGrade: clean(body.majorGrade, 100),
@@ -185,7 +192,17 @@ export async function POST(request: Request) {
       status: "pending",
     };
 
-    if (!values.name || !values.city || !values.university || !values.majorGrade || !values.skill || !values.mode || !values.serviceIntro || !values.contact) {
+    if (
+      !values.name
+      || (locationScope === "china" ? !values.province : !values.country)
+      || !values.city
+      || !values.university
+      || !values.majorGrade
+      || !values.skill
+      || !values.mode
+      || !values.serviceIntro
+      || !values.contact
+    ) {
       return Response.json({ error: "请完整填写必填信息" }, { status: 400 });
     }
 

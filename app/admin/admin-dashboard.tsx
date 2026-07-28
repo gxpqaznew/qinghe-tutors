@@ -5,6 +5,9 @@ import { FormEvent, useEffect, useState } from "react";
 type CreatorSubmission = {
   id: number;
   name: string;
+  locationScope: "china" | "overseas";
+  province: string;
+  country: string;
   city: string;
   university: string;
   majorGrade: string;
@@ -142,7 +145,7 @@ export function AdminDashboard() {
 
       <AdminSection title="技能分享者入驻" count={submissions.creators.length}>
         {submissions.creators.map((item) => (
-          <AdminCard key={item.id} title={`${item.name} · ${item.skill}`} meta={`${item.university} · ${item.majorGrade} · ${item.city}`} contact={item.contact} createdAt={item.createdAt} onApprove={() => moderate("creator", item.id, "published")} onReject={() => moderate("creator", item.id, "rejected")} disabled={loading}>
+          <AdminCard key={item.id} title={`${item.name} · ${item.skill}`} meta={`${item.university} · ${item.majorGrade} · ${item.locationScope === "overseas" ? item.country : item.province} · ${item.city}`} contact={item.contact} createdAt={item.createdAt} onApprove={() => moderate("creator", item.id, "published")} onReject={() => moderate("creator", item.id, "rejected")} disabled={loading}>
             <p>{item.serviceIntro}</p>
             <small>{item.mode}{item.workUrl ? ` · 作品：${item.workUrl}` : ""}</small>
             {!!item.media.length && (

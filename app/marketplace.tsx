@@ -1,14 +1,26 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  chinaRegions,
+  inferProvinceFromCity,
+  overseasRegionSuggestions,
+  provinceSuggestions,
+  schoolsByCity,
+  universitySuggestions,
+} from "./location-data";
 
 type Role = "learner" | "creator";
+type LocationScope = "china" | "overseas";
 
 type Creator = {
   id: number | string;
   profileId?: number;
   name: string;
   initials: string;
+  locationScope: LocationScope;
+  province: string;
+  country: string;
   city: string;
   university: string;
   major: string;
@@ -67,6 +79,9 @@ const creators: Creator[] = [
     id: 1,
     name: "林小满",
     initials: "林",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "四川大学",
     major: "新闻传播 · 大三",
@@ -86,6 +101,9 @@ const creators: Creator[] = [
     id: 2,
     name: "周予安",
     initials: "周",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "电子科技大学",
     major: "计算机科学 · 研一",
@@ -104,6 +122,9 @@ const creators: Creator[] = [
     id: 3,
     name: "吴嘉树",
     initials: "吴",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "电子科技大学",
     major: "数学与应用数学 · 大三",
@@ -119,6 +140,9 @@ const creators: Creator[] = [
     id: 4,
     name: "唐可",
     initials: "唐",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "西南交通大学",
     major: "建筑学 · 大四",
@@ -134,6 +158,9 @@ const creators: Creator[] = [
     id: 5,
     name: "许知遥",
     initials: "许",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "西南财经大学",
     major: "金融学 · 大三",
@@ -149,6 +176,9 @@ const creators: Creator[] = [
     id: 6,
     name: "叶青",
     initials: "叶",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "成都理工大学",
     major: "数字媒体 · 大二",
@@ -164,6 +194,9 @@ const creators: Creator[] = [
     id: 7,
     name: "陈一",
     initials: "陈",
+    locationScope: "china",
+    province: "四川省",
+    country: "",
     city: "成都",
     university: "四川音乐学院",
     major: "流行演唱 · 大三",
@@ -174,6 +207,27 @@ const creators: Creator[] = [
     intro: "不从枯燥理论开始，先学会弹唱一首你喜欢的歌。",
     proof: "3 年校园乐队经历",
     color: "navy",
+  },
+  {
+    id: 8,
+    name: "苏言",
+    initials: "苏",
+    locationScope: "overseas",
+    province: "",
+    country: "英国",
+    city: "伦敦",
+    university: "伦敦大学学院",
+    major: "教育学 · 硕士",
+    skill: "英文论文表达思路",
+    category: "语言表达",
+    mode: "线上交流",
+    price: "¥60 / 次",
+    intro: "分享英文论证结构、资料整理和口头展示方法，不代写或修改课程论文。",
+    proof: "海外课程展示经验",
+    color: "green",
+    reviews: [
+      { id: "review-4", reviewerName: "余同学", reviewerUniversity: "伦敦大学学院", rating: 5, content: "把论证结构讲得很清楚，也会明确说明哪些部分需要我自己完成。", createdAt: "2026-07" },
+    ],
   },
 ];
 
@@ -261,29 +315,16 @@ const sampleRequests: SkillRequest[] = [
 ];
 
 const categories = ["全部", "大学课程", "设计表达", "编程与数据", "摄影影像", "语言表达", "兴趣生活"];
-const schoolsByCity: Record<string, string[]> = {
-  成都: ["四川大学", "电子科技大学", "西南交通大学", "西南财经大学", "成都理工大学", "四川音乐学院", "成都信息工程大学", "西华大学"],
-  北京: ["北京大学", "清华大学", "中国人民大学", "北京师范大学", "北京航空航天大学", "北京理工大学"],
-  上海: ["复旦大学", "上海交通大学", "同济大学", "华东师范大学", "上海财经大学"],
-  广州: ["中山大学", "华南理工大学", "暨南大学", "华南师范大学"],
-  深圳: ["深圳大学", "南方科技大学", "香港中文大学（深圳）"],
-  重庆: ["重庆大学", "西南大学", "重庆邮电大学", "西南政法大学"],
-  武汉: ["武汉大学", "华中科技大学", "武汉理工大学", "华中师范大学"],
-  西安: ["西安交通大学", "西北工业大学", "西安电子科技大学", "陕西师范大学"],
-  南京: ["南京大学", "东南大学", "南京师范大学", "南京航空航天大学"],
-  杭州: ["浙江大学", "杭州电子科技大学", "浙江工业大学", "浙江工商大学"],
-};
-const citySuggestions = Object.keys(schoolsByCity);
-const universitySuggestions = Object.values(schoolsByCity).flat();
-
-function inferCityFromSchool(school: string) {
-  return citySuggestions.find((city) => schoolsByCity[city].includes(school)) || "";
-}
-
 function reviewSummary(reviews: CreatorReview[] = []) {
   if (!reviews.length) return { average: "暂无", count: 0 };
   const average = reviews.reduce((total, review) => total + review.rating, 0) / reviews.length;
   return { average: average.toFixed(1), count: reviews.length };
+}
+
+function creatorLocationLabel(creator: Creator) {
+  return creator.locationScope === "overseas"
+    ? [creator.country, creator.city].filter(Boolean).join(" · ")
+    : [creator.province, creator.city].filter(Boolean).join(" · ");
 }
 
 async function postForm(url: string, form: HTMLFormElement) {
@@ -318,6 +359,9 @@ export function Marketplace() {
   const [formError, setFormError] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
+  const [locationScope, setLocationScope] = useState<LocationScope>("china");
+  const [province, setProvince] = useState("");
+  const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [school, setSchool] = useState("");
   const [sameSchoolOnly, setSameSchoolOnly] = useState(false);
@@ -327,9 +371,15 @@ export function Marketplace() {
   useEffect(() => {
     const savedRole = localStorage.getItem("campus-role");
     const savedSchool = localStorage.getItem("campus-university") || "";
-    const savedCity = localStorage.getItem("campus-city") || inferCityFromSchool(savedSchool);
+    const savedCity = localStorage.getItem("campus-city") || "";
+    const savedScope = localStorage.getItem("campus-location-scope") === "overseas" ? "overseas" : "china";
+    const savedProvince = localStorage.getItem("campus-province") || inferProvinceFromCity(savedCity);
+    const savedCountry = localStorage.getItem("campus-country") || "";
     if (savedRole === "learner" || savedRole === "creator") setRole(savedRole);
     setCreatorReady(localStorage.getItem("campus-creator-ready") === "true");
+    setLocationScope(savedScope);
+    setProvince(savedProvince);
+    setCountry(savedCountry);
     setCity(savedCity);
     setSchool(savedSchool);
     setSameSchoolOnly(Boolean(savedSchool));
@@ -342,6 +392,9 @@ export function Marketplace() {
       .then((result: { profiles?: Array<{
         id: number;
         name: string;
+        locationScope: LocationScope;
+        province: string;
+        country: string;
         city: string;
         university: string;
         majorGrade: string;
@@ -360,6 +413,9 @@ export function Marketplace() {
           profileId: profile.id,
           name: profile.name,
           initials: profile.name.slice(0, 1),
+          locationScope: profile.locationScope === "overseas" ? "overseas" : "china",
+          province: profile.province || inferProvinceFromCity(profile.city),
+          country: profile.country || "",
           city: profile.city,
           university: profile.university,
           major: profile.majorGrade,
@@ -421,11 +477,48 @@ export function Marketplace() {
     return listedCreators.filter((creator) => {
       const categoryMatches = category === "全部" || creator.category === category;
       const queryMatches = !key || `${creator.name}${creator.university}${creator.major}${creator.skill}${creator.category}`.includes(key);
+      const scopeMatches = creator.locationScope === locationScope;
+      const regionMatches = locationScope === "china"
+        ? !province || creator.province === province
+        : !country || creator.country === country;
       const cityMatches = !city || creator.city === city;
       const schoolMatches = !sameSchoolOnly || (!!school && creator.university === school);
-      return categoryMatches && queryMatches && cityMatches && schoolMatches;
+      return categoryMatches && queryMatches && scopeMatches && regionMatches && cityMatches && schoolMatches;
     });
-  }, [category, city, listedCreators, query, sameSchoolOnly, school]);
+  }, [category, city, country, listedCreators, locationScope, province, query, sameSchoolOnly, school]);
+
+  function updateLocationScope(nextScope: LocationScope) {
+    setLocationScope(nextScope);
+    setProvince("");
+    setCountry("");
+    setCity("");
+    setSchool("");
+    setSameSchoolOnly(false);
+    localStorage.setItem("campus-location-scope", nextScope);
+    ["campus-province", "campus-country", "campus-city", "campus-university"].forEach((key) => localStorage.removeItem(key));
+  }
+
+  function updateProvince(nextProvince: string) {
+    setProvince(nextProvince);
+    setCity("");
+    setSchool("");
+    setSameSchoolOnly(false);
+    localStorage.removeItem("campus-city");
+    localStorage.removeItem("campus-university");
+    if (nextProvince) localStorage.setItem("campus-province", nextProvince);
+    else localStorage.removeItem("campus-province");
+  }
+
+  function updateCountry(nextCountry: string) {
+    setCountry(nextCountry);
+    setCity("");
+    setSchool("");
+    setSameSchoolOnly(false);
+    localStorage.removeItem("campus-city");
+    localStorage.removeItem("campus-university");
+    if (nextCountry) localStorage.setItem("campus-country", nextCountry);
+    else localStorage.removeItem("campus-country");
+  }
 
   function updateCity(nextCity: string) {
     setCity(nextCity);
@@ -441,11 +534,6 @@ export function Marketplace() {
     setSchool(nextSchool);
     if (normalized) {
       localStorage.setItem("campus-university", normalized);
-      const inferredCity = inferCityFromSchool(normalized);
-      if (!city && inferredCity) {
-        setCity(inferredCity);
-        localStorage.setItem("campus-city", inferredCity);
-      }
       setSameSchoolOnly(true);
     }
     else {
@@ -458,7 +546,14 @@ export function Marketplace() {
     if (school.trim()) setSameSchoolOnly(true);
     document.getElementById("skills")?.scrollIntoView({ behavior: "smooth" });
     if (!school.trim()) {
-      window.setTimeout(() => document.getElementById(city ? "my-university" : "my-city")?.focus(), 500);
+      const nextField = locationScope === "china" && !province
+        ? "my-province"
+        : locationScope === "overseas" && !country
+          ? "my-country"
+          : !city
+            ? "my-city"
+            : "my-university";
+      window.setTimeout(() => document.getElementById(nextField)?.focus(), 500);
     }
   }
 
@@ -481,6 +576,9 @@ export function Marketplace() {
     const formData = new FormData(event.currentTarget);
     const submittedSchool = String(formData.get("university") || "").trim();
     const submittedCity = String(formData.get("city") || "").trim();
+    const submittedScope = formData.get("locationScope") === "overseas" ? "overseas" : "china";
+    const submittedProvince = String(formData.get("province") || "").trim();
+    const submittedCountry = String(formData.get("country") || "").trim();
     setSubmitting(true);
     setFormError("");
     try {
@@ -493,6 +591,16 @@ export function Marketplace() {
       if (submittedCity) {
         localStorage.setItem("campus-city", submittedCity);
         setCity(submittedCity);
+      }
+      localStorage.setItem("campus-location-scope", submittedScope);
+      setLocationScope(submittedScope);
+      if (submittedProvince) {
+        localStorage.setItem("campus-province", submittedProvince);
+        setProvince(submittedProvince);
+      }
+      if (submittedCountry) {
+        localStorage.setItem("campus-country", submittedCountry);
+        setCountry(submittedCountry);
       }
       setCreatorReady(true);
       setSubmitted("creator");
@@ -541,6 +649,9 @@ export function Marketplace() {
   if (role === "creator" && !creatorReady) {
     return (
       <CreatorOnboarding
+        locationScope={locationScope}
+        province={province}
+        country={country}
         city={city}
         school={school}
         onSubmit={submitCreator}
@@ -599,15 +710,22 @@ export function Marketplace() {
           <div className="hero-copy">
             <span className="eyebrow">同校优先的大学生技能交换所</span>
             <h1>先找同校，<br />再把范围放大。</h1>
-            <p>从自己学校里找会这项技能的人：更容易核验彼此身份，线下见面也更方便。同校没有合适的人，再浏览其他学校。</p>
+            <p>无论在中国大陆还是海外，都可以先从自己的学校找会这项技能的人：更容易核验彼此身份，同校没有合适的人，再浏览其他学校。</p>
             <div className="hero-actions">
               <button className="primary-button same-school-hero-button" onClick={openSameSchool}>
                 <span>只看同校</span>
-                <small>{school.trim() ? `${city} · ${school}` : city ? `${city} · 再选择学校` : "先选择城市和学校"}</small>
+                <small>
+                  {school.trim()
+                    ? `${locationScope === "china" ? province : country} · ${city} · ${school}`
+                    : city
+                      ? `${city} · 再填写学校`
+                      : "支持中国大陆及海外学校"}
+                </small>
               </button>
               <button className="secondary-button" onClick={() => setRequestOpen(true)}>免费发需求</button>
             </div>
             <div className="trust-row">
+              <span>覆盖中国与海外学校</span>
               <span>同校优先匹配</span>
               <span>只允许个人对个人</span>
               <span>严禁机构与中介</span>
@@ -618,7 +736,7 @@ export function Marketplace() {
             <div className="board-card card-main">
               <small>只看同校</small>
               <strong>先从自己的学校<br />找到刚好会的人</strong>
-              <p>输入学校后，自动优先展示同校技能名片</p>
+              <p>按国家、省市和学校逐级定位，再优先展示同校技能名片</p>
             </div>
             <div className="board-card same-school-benefit benefit-one"><b>01</b> 更方便见面</div>
             <div className="board-card same-school-benefit benefit-two"><b>02</b> 更容易核验</div>
@@ -644,9 +762,15 @@ export function Marketplace() {
             </div>
           </div>
           <SchoolFilter
+            locationScope={locationScope}
+            province={province}
+            country={country}
             city={city}
             school={school}
             sameSchoolOnly={sameSchoolOnly}
+            onLocationScopeChange={updateLocationScope}
+            onProvinceChange={updateProvince}
+            onCountryChange={updateCountry}
             onCityChange={updateCity}
             onSchoolChange={updateSchool}
             onSameSchoolChange={setSameSchoolOnly}
@@ -654,16 +778,16 @@ export function Marketplace() {
           {sameSchoolOnly && school.trim() && (
             <div className="same-school-status" role="status">
               <span>同校视图已开启</span>
-              <strong>{city} · {school}</strong>
+              <strong>{locationScope === "china" ? province : country} · {city} · {school}</strong>
               <small>当前只展示与你学校名称一致的技能分享者</small>
               <button onClick={() => setSameSchoolOnly(false)}>看看其他学校 →</button>
             </div>
           )}
-          {city && !sameSchoolOnly && (
+          {(province || country || city) && !sameSchoolOnly && (
             <div className="same-school-status city-status" role="status">
-              <span>城市范围</span>
-              <strong>{city}</strong>
-              <small>{school ? `已选择 ${school}，可开启“只看同校”` : "请选择学校，或先浏览这座城市的技能分享者"}</small>
+              <span>{locationScope === "china" ? "中国大陆" : "海外 / 港澳台"}</span>
+              <strong>{[locationScope === "china" ? province : country, city].filter(Boolean).join(" · ")}</strong>
+              <small>{school ? `已填写 ${school}，可开启“只看同校”` : "继续填写城市和学校，或浏览当前地区的技能分享者"}</small>
             </div>
           )}
           <div className="category-tabs" aria-label="技能分类">
@@ -708,7 +832,7 @@ export function Marketplace() {
                 </div>
                 <div className="creator-person">
                   <div className={`avatar ${creator.color}`}>{creator.initials}</div>
-                  <div><strong>{creator.name}</strong><small>{creator.city} · {creator.university} · {creator.major}</small></div>
+                  <div><strong>{creator.name}</strong><small>{creatorLocationLabel(creator)} · {creator.university} · {creator.major}</small></div>
                 </div>
                 <div className="card-footer">
                   <span>{creator.mode}</span>
@@ -785,7 +909,7 @@ export function Marketplace() {
               <div>
                 <span className="eyebrow">{activeCreator.category}</span>
                 <h2>{activeCreator.skill}</h2>
-                <strong>{activeCreator.name} · {activeCreator.city} · {activeCreator.university}</strong>
+                <strong>{activeCreator.name} · {creatorLocationLabel(activeCreator)} · {activeCreator.university}</strong>
                 <small className="individual-badge">
                   {school && activeCreator.university === school
                     ? `同校 · ${activeCreator.schoolVerificationStatus === "verified" ? "学校身份已认证" : "学校信息待认证"}`
@@ -976,16 +1100,28 @@ function PortfolioShowcase({ creator }: { creator: Creator }) {
 }
 
 function SchoolFilter({
+  locationScope,
+  province,
+  country,
   city,
   school,
   sameSchoolOnly,
+  onLocationScopeChange,
+  onProvinceChange,
+  onCountryChange,
   onCityChange,
   onSchoolChange,
   onSameSchoolChange,
 }: {
+  locationScope: LocationScope;
+  province: string;
+  country: string;
   city: string;
   school: string;
   sameSchoolOnly: boolean;
+  onLocationScopeChange: (scope: LocationScope) => void;
+  onProvinceChange: (province: string) => void;
+  onCountryChange: (country: string) => void;
   onCityChange: (city: string) => void;
   onSchoolChange: (school: string) => void;
   onSameSchoolChange: (checked: boolean) => void;
@@ -994,20 +1130,61 @@ function SchoolFilter({
     <div className="school-filter">
       <div className="school-filter-intro">
         <span>同校优先</span>
-        <strong>把你的学校设为第一搜索范围</strong>
-        <p>先找身边可信、方便见面的同学；找不到时，随时切换到全部学校。</p>
+        <strong>国内外学校都可以找到同校</strong>
+        <p>中国大陆按省、市定位；海外及港澳台按国家或地区定位。城市和学校都可以自行填写。</p>
       </div>
-      <div className="school-filter-actions">
+      <div className="location-filter-panel">
+        <div className="location-scope-switch" aria-label="地区范围">
+          <button className={locationScope === "china" ? "active" : ""} onClick={() => onLocationScopeChange("china")}>中国大陆</button>
+          <button className={locationScope === "overseas" ? "active" : ""} onClick={() => onLocationScopeChange("overseas")}>海外 / 港澳台</button>
+        </div>
+        <div className="school-filter-actions">
+          {locationScope === "china" ? (
+            <div className="location-step">
+              <span>1</span>
+              <label htmlFor="my-province">
+                省份
+                <select id="my-province" value={province} onChange={(event) => onProvinceChange(event.target.value)}>
+                  <option value="">请选择省份</option>
+                  {provinceSuggestions.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </label>
+            </div>
+          ) : (
+            <div className="location-step">
+              <span>1</span>
+              <label htmlFor="my-country">
+                国家或地区
+                <input
+                  id="my-country"
+                  list="country-options"
+                  value={country}
+                  onChange={(event) => onCountryChange(event.target.value)}
+                  placeholder="选择或输入"
+                />
+                <datalist id="country-options">{overseasRegionSuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+              </label>
+            </div>
+          )}
         <div className="location-step">
-          <span>1</span>
+          <span>2</span>
           <label htmlFor="my-city">
             所在城市
-            <input id="my-city" list="city-options" value={city} onChange={(event) => onCityChange(event.target.value)} placeholder="选择或输入城市" />
-            <datalist id="city-options">{citySuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+            <input
+              id="my-city"
+              list="city-options"
+              value={city}
+              disabled={locationScope === "china" ? !province : !country}
+              onChange={(event) => onCityChange(event.target.value)}
+              placeholder={locationScope === "china" && !province ? "请先选择省份" : locationScope === "overseas" && !country ? "请先填写国家或地区" : "选择或输入城市"}
+            />
+            <datalist id="city-options">
+              {(locationScope === "china" ? chinaRegions[province] || [] : []).map((item) => <option key={item} value={item} />)}
+            </datalist>
           </label>
         </div>
         <div className="school-picker">
-          <span>2</span>
+          <span>3</span>
           <label htmlFor="my-university">
             我的学校
             <input
@@ -1016,7 +1193,7 @@ function SchoolFilter({
               value={school}
               disabled={!city}
               onChange={(event) => onSchoolChange(event.target.value)}
-              placeholder={city ? "选择或输入学校全称" : "请先选择城市"}
+              placeholder={city ? "自行填写学校全称" : "请先填写城市"}
             />
             <datalist id="university-options">
               {(schoolsByCity[city] || []).map((university) => <option key={university} value={university} />)}
@@ -1030,8 +1207,9 @@ function SchoolFilter({
             disabled={!school.trim()}
             onChange={(event) => onSameSchoolChange(event.target.checked)}
           />
-          <span><b>3</b>{sameSchoolOnly ? "正在只看同校" : "开启只看同校"}</span>
+          <span><b>4</b>{sameSchoolOnly ? "正在只看同校" : "开启只看同校"}</span>
         </label>
+        </div>
       </div>
       <p className="school-verification-note">
         <b>同校标签只表示双方填写的学校名称一致，不等于学生身份已认证。</b>
@@ -1049,7 +1227,7 @@ function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
         <div className="role-intro">
           <span className="eyebrow">同校优先的大学生技能交换所</span>
           <h1>先从同校开始，<br />找到彼此会的。</h1>
-          <p>优先连接同一所学校里的真实个人：身份更容易互相核验，线下交流也更方便；同校没有合适的人，再扩大范围。</p>
+          <p>无论在中国大陆还是海外，都优先连接同一所学校里的真实个人；同校没有合适的人，再扩大范围。</p>
         </div>
         <div className="same-school-promise">
           <span>只看同校</span>
@@ -1078,6 +1256,9 @@ function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
 }
 
 function CreatorOnboarding({
+  locationScope,
+  province,
+  country,
   city,
   school,
   onSubmit,
@@ -1086,6 +1267,9 @@ function CreatorOnboarding({
   onSwitch,
   onExisting,
 }: {
+  locationScope: LocationScope;
+  province: string;
+  country: string;
   city: string;
   school: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -1094,6 +1278,9 @@ function CreatorOnboarding({
   onSwitch: () => void;
   onExisting: () => void;
 }) {
+  const [selectedScope, setSelectedScope] = useState<LocationScope>(locationScope);
+  const [selectedProvince, setSelectedProvince] = useState(province);
+
   return (
     <main className="creator-onboarding">
       <header className="portal-header">
@@ -1116,14 +1303,39 @@ function CreatorOnboarding({
           <p>仅接受大学生个人入驻。机构、工作室、中介、招生代理和替他人接单的账号不会通过审核。</p>
           <form onSubmit={onSubmit}>
             <label>昵称 / 姓名<input name="name" required placeholder="例如：林小满" /></label>
+            <div className="onboarding-location full-field">
+              <span>所在地区</span>
+              <div className="location-scope-switch">
+                <button type="button" className={selectedScope === "china" ? "active" : ""} onClick={() => setSelectedScope("china")}>中国大陆</button>
+                <button type="button" className={selectedScope === "overseas" ? "active" : ""} onClick={() => setSelectedScope("overseas")}>海外 / 港澳台</button>
+              </div>
+              <input type="hidden" name="locationScope" value={selectedScope} />
+            </div>
+            {selectedScope === "china" ? (
+              <label>
+                省份
+                <select name="province" required value={selectedProvince} onChange={(event) => setSelectedProvince(event.target.value)}>
+                  <option value="">请选择省份</option>
+                  {provinceSuggestions.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </label>
+            ) : (
+              <label>
+                国家或地区
+                <input name="country" required defaultValue={country} list="country-options" placeholder="选择或输入" />
+                <datalist id="country-options">{overseasRegionSuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+              </label>
+            )}
             <label>
               所在城市
-              <input name="city" required defaultValue={city} list="city-options" placeholder="选择或输入城市" />
-              <datalist id="city-options">{citySuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+              <input name="city" required defaultValue={city} list="creator-city-options" placeholder="选择或输入城市" />
+              <datalist id="creator-city-options">
+                {(selectedScope === "china" ? chinaRegions[selectedProvince] || [] : []).map((item) => <option key={item} value={item} />)}
+              </datalist>
             </label>
             <label>
               学校
-              <input name="university" required defaultValue={school} list="university-options" placeholder="例如：四川大学" />
+              <input name="university" required defaultValue={school} list="university-options" placeholder="请填写学校全称" />
               <datalist id="university-options">
                 {universitySuggestions.map((university) => <option key={university} value={university} />)}
               </datalist>

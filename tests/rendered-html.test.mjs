@@ -80,7 +80,7 @@ test("filters by city before school and publishes moderated profile reviews", as
     readFile(new URL("db/schema.ts", root), "utf8"),
   ]);
 
-  assert.match(marketplace, /先选择城市/);
+  assert.match(marketplace, /请先选择省份/);
   assert.match(marketplace, /所在城市/);
   assert.match(marketplace, /别人如何评价这位技能分享者/);
   assert.match(marketplace, /完成交流后评价/);
@@ -89,6 +89,26 @@ test("filters by city before school and publishes moderated profile reviews", as
   assert.match(creatorApi, /creatorReviews\.status,\s*"published"/);
   assert.match(adminApi, /body\.kind === "review"/);
   assert.match(schema, /creatorReviews/);
+});
+
+test("supports China province-city discovery and free-form overseas schools", async () => {
+  const [marketplace, locations, creatorApi, schema] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/location-data.ts", root), "utf8"),
+    readFile(new URL("app/api/creator-profiles/route.ts", root), "utf8"),
+    readFile(new URL("db/schema.ts", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /中国大陆/);
+  assert.match(marketplace, /海外 \/ 港澳台/);
+  assert.match(marketplace, /国家或地区/);
+  assert.match(marketplace, /自行填写学校全称/);
+  assert.match(locations, /四川省/);
+  assert.match(locations, /新疆维吾尔自治区/);
+  assert.match(creatorApi, /locationScope === "overseas"/);
+  assert.match(schema, /locationScope/);
+  assert.match(schema, /province/);
+  assert.match(schema, /country/);
 });
 
 test("publishes approved submissions while keeping contacts out of public endpoints", async () => {

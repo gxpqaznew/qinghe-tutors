@@ -103,11 +103,16 @@ a { color: inherit; }
 .school-filter-intro > span { display: inline-block; margin-bottom: 9px; padding: 5px 9px; color: var(--navy); background: #f1a38e; border-radius: 14px; font-size: 9px; font-weight: 900; letter-spacing: 2px; }
 .school-filter-intro strong { display: block; font: 900 22px/1.35 "Songti SC", "Microsoft YaHei", serif; }
 .school-filter-intro p { margin: 8px 0 0; color: #becbda; font-size: 10px; line-height: 1.65; }
-.school-filter-actions { display: grid; grid-template-columns: minmax(135px, .8fr) minmax(190px, 1.2fr) auto; gap: 10px; align-items: stretch; }
+.location-filter-panel { min-width: 0; }
+.location-scope-switch { display: inline-flex; gap: 4px; margin-bottom: 12px; padding: 4px; background: #edf0f2; border-radius: 9px; }
+.location-scope-switch button { padding: 7px 12px; color: #687487; background: transparent; border: 0; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.location-scope-switch button.active { color: white; background: var(--navy); box-shadow: 0 4px 12px #162a4625; }
+.school-filter-actions { display: grid; grid-template-columns: minmax(125px, .8fr) minmax(125px, .8fr) minmax(180px, 1.2fr) auto; gap: 8px; align-items: stretch; }
 .location-step, .school-picker { display: flex; align-items: center; gap: 9px; padding: 8px 10px; background: #f8f6f1; border: 1px solid var(--line); border-radius: 8px; }
 .location-step > span, .school-picker > span { width: 23px; height: 23px; display: grid; place-items: center; flex: 0 0 auto; color: white; background: var(--navy); border-radius: 50%; font-size: 10px; font-weight: 900; }
 .location-step label, .school-picker label { flex: 1; color: var(--navy); font-size: 10px; font-weight: 800; }
-.location-step input { width: 100%; display: block; margin-top: 4px; padding: 0; color: var(--ink); background: transparent; border: 0; outline: 0; }
+.location-step input, .location-step select { width: 100%; display: block; margin-top: 4px; padding: 0; color: var(--ink); background: transparent; border: 0; outline: 0; }
+.location-step input:disabled { color: #9aa1aa; cursor: not-allowed; }
 .school-picker input { min-width: 0; width: 100%; padding: 10px 12px; color: var(--ink); background: #f8f6f1; border: 1px solid var(--line); border-radius: 8px; outline-color: var(--blue); }
 .school-picker input { display: block; margin: 4px 0 0; padding: 0; background: transparent; border: 0; }
 .school-picker input:disabled { color: #9aa1aa; cursor: not-allowed; }
@@ -191,6 +196,9 @@ a { color: inherit; }
 .onboarding-layout li b { width: 28px; height: 28px; display: grid; place-items: center; color: white; background: var(--navy); border-radius: 9px 9px 9px 3px; }
 .onboarding-card { padding: 36px; background: white; border: 1px solid var(--line); box-shadow: 0 20px 50px #1d304712; }
 .onboarding-card h2, .form-modal h2 { margin: 0 0 9px; color: var(--navy); font: 900 31px "Songti SC", serif; }
+.onboarding-location { padding: 14px; background: #f3f1eb; border: 1px solid #ded9cd; }
+.onboarding-location > span { display: block; margin-bottom: 8px; color: #405066; font-size: 10px; font-weight: 800; }
+.onboarding-location .location-scope-switch { margin: 0; }
 .onboarding-card > p, .modal-note { color: var(--muted); font-size: 12px; line-height: 1.75; }
 .onboarding-card form, .form-modal form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 25px; }
 .onboarding-card label, .form-modal label { color: #405066; font-size: 11px; font-weight: 800; }
