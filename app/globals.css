@@ -50,6 +50,10 @@ a { color: inherit; }
 .role-choice p { min-height: 54px; color: var(--muted); line-height: 1.75; }
 .role-choice b { display: block; margin-top: 22px; color: var(--navy); }
 .role-footnote { color: #7f8994; text-align: center; font-size: 11px; }
+.same-school-promise { display: flex; align-items: center; gap: 18px; max-width: 760px; margin: 0 auto 20px; padding: 14px 18px; color: #576679; background: #fffaf0bb; border: 1px solid #d9d2c5; }
+.same-school-promise > span { flex: 0 0 auto; padding: 8px 12px; color: white; background: var(--green); border-radius: 18px; font-size: 11px; font-weight: 900; }
+.same-school-promise p { margin: 0; font-size: 10px; line-height: 1.65; }
+.same-school-promise b { color: var(--navy); }
 
 .site-nav, .portal-header { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 max(5vw, 24px); background: #fffdf8ed; border-bottom: 1px solid #e7e2d8; backdrop-filter: blur(14px); z-index: 20; }
 .site-nav, .portal-header.sticky { position: sticky; top: 0; }
@@ -61,6 +65,8 @@ a { color: inherit; }
 .hero-copy h1 { margin: 0 0 24px; color: var(--navy); font: 900 clamp(48px, 5.7vw, 78px)/1.08 "Songti SC", "Microsoft YaHei", serif; letter-spacing: -4px; }
 .hero-copy > p { max-width: 650px; color: #586679; font-size: 17px; line-height: 1.9; }
 .hero-actions { display: flex; gap: 12px; margin: 31px 0 26px; }
+.same-school-hero-button { min-width: 210px; flex-direction: column; gap: 3px; padding: 10px 24px; }
+.same-school-hero-button small { color: #cbd7e5; font-size: 9px; font-weight: 500; }
 .trust-row { display: flex; flex-wrap: wrap; gap: 21px; color: #657286; font-size: 11px; }
 .trust-row span::before { content: "●"; margin-right: 7px; color: var(--coral); font-size: 8px; }
 .hero-board { position: relative; width: min(430px, 100%); min-height: 390px; padding: 45px; background: #f8e5cf; border: 10px solid #d9c2a4; box-shadow: 0 30px 70px #14294121; transform: rotate(1deg); }
@@ -73,6 +79,15 @@ a { color: inherit; }
 .card-blue { right: 16px; bottom: 70px; background: var(--blue); transform: rotate(4deg); }
 .card-coral { left: 16px; bottom: 40px; background: var(--coral); transform: rotate(-6deg); }
 .board-note { position: absolute; right: 28px; bottom: 18px; color: var(--navy); font: italic 13px "Songti SC", serif; }
+.same-school-board { min-height: 420px; background: #dbe7ef; border-color: #b8c9d5; transform: rotate(-1deg); }
+.same-school-board .card-main { padding: 34px 30px 42px; }
+.same-school-board .card-main small { display: inline-block; padding: 6px 10px; color: white; background: var(--coral); border-radius: 16px; }
+.same-school-board .card-main p { max-width: 260px; line-height: 1.7; }
+.same-school-benefit { position: absolute; display: flex; align-items: center; gap: 9px; padding: 14px 18px; color: var(--navy); font-size: 12px; font-weight: 800; }
+.same-school-benefit b { color: var(--coral); font: italic 17px Georgia, serif; }
+.benefit-one { right: 16px; bottom: 85px; transform: rotate(3deg); }
+.benefit-two { left: 19px; bottom: 47px; transform: rotate(-3deg); }
+.same-school-board .board-note { right: 22px; bottom: 17px; font-size: 11px; }
 .board-pin { position: absolute; z-index: 3; width: 14px; height: 14px; border-radius: 50%; background: var(--navy); box-shadow: 0 4px 8px #0004; }
 .pin-one { top: 25px; left: 50%; }
 
@@ -83,21 +98,32 @@ a { color: inherit; }
 .skill-search { width: min(340px, 100%); padding: 13px 15px; color: var(--ink); background: white; border: 1px solid var(--line); border-radius: 10px; outline-color: var(--blue); }
 .search-stack { display: flex; align-items: flex-end; flex-direction: column; gap: 8px; }
 .search-stack small { color: #8892a0; font-size: 10px; }
-.school-filter { display: grid; grid-template-columns: minmax(220px, 320px) auto 1fr; align-items: center; gap: 14px; margin-bottom: 18px; padding: 16px 18px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue); }
+.school-filter { display: grid; grid-template-columns: minmax(240px, .8fr) minmax(360px, 1.2fr); align-items: center; gap: 24px 38px; margin-bottom: 18px; padding: 25px 28px; background: linear-gradient(105deg, #162a46 0 38%, #fff 38%); border: 1px solid #cad4dd; box-shadow: 0 15px 38px #172b4712; }
+.school-filter-intro { color: white; }
+.school-filter-intro > span { display: inline-block; margin-bottom: 9px; padding: 5px 9px; color: var(--navy); background: #f1a38e; border-radius: 14px; font-size: 9px; font-weight: 900; letter-spacing: 2px; }
+.school-filter-intro strong { display: block; font: 900 22px/1.35 "Songti SC", "Microsoft YaHei", serif; }
+.school-filter-intro p { margin: 8px 0 0; color: #becbda; font-size: 10px; line-height: 1.65; }
+.school-filter-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: stretch; }
 .school-picker { display: flex; align-items: center; gap: 10px; }
 .school-picker label { flex: 0 0 auto; color: var(--navy); font-size: 11px; font-weight: 800; }
 .school-picker input { min-width: 0; width: 100%; padding: 10px 12px; color: var(--ink); background: #f8f6f1; border: 1px solid var(--line); border-radius: 8px; outline-color: var(--blue); }
-.same-school-toggle { display: flex; align-items: center; gap: 8px; padding: 10px 13px; color: white; background: var(--navy); border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.same-school-toggle { display: flex; min-width: 145px; align-items: center; justify-content: center; gap: 8px; padding: 10px 13px; color: white; background: var(--coral); border-radius: 8px; box-shadow: 0 8px 18px #ef6d5030; font-size: 12px; font-weight: 800; cursor: pointer; }
 .same-school-toggle input { accent-color: var(--coral); }
 .same-school-toggle.disabled { opacity: .45; cursor: not-allowed; }
-.school-filter > p { margin: 0; color: #7e8896; font-size: 10px; line-height: 1.55; }
-.school-filter > p b { color: #ac5744; }
+.school-verification-note { grid-column: 2; margin: -10px 0 0; color: #7e8896; font-size: 10px; line-height: 1.55; }
+.school-verification-note b { color: #ac5744; }
+.same-school-status { display: flex; align-items: center; gap: 13px; margin: -1px 0 22px; padding: 12px 16px; color: #526175; background: #e7f0eb; border-left: 4px solid var(--green); font-size: 11px; }
+.same-school-status > span { padding: 4px 8px; color: white; background: var(--green); border-radius: 12px; font-size: 9px; font-weight: 900; }
+.same-school-status strong { color: var(--navy); font-size: 13px; }
+.same-school-status small { flex: 1; color: #718078; }
+.same-school-status button { color: var(--navy); background: transparent; border: 0; font-weight: 800; }
 .category-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .category-tabs button { padding: 8px 13px; color: var(--muted); background: #f3f0e9; border: 1px solid transparent; border-radius: 18px; }
 .category-tabs button.active { color: white; background: var(--navy); }
 .creator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 17px; }
 .creator-card { display: flex; min-height: 340px; flex-direction: column; padding: 24px; background: white; border: 1px solid var(--line); cursor: pointer; transition: .2s; }
 .creator-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px #1f344d14; }
+.same-school-card { border-color: #91aa9f; box-shadow: inset 0 4px 0 var(--green); }
 .creator-cover { position: relative; height: 155px; margin: -24px -24px 22px; overflow: hidden; background: #dfe5ea; }
 .creator-cover img, .creator-cover video { width: 100%; height: 100%; display: block; object-fit: cover; }
 .creator-cover span { position: absolute; right: 10px; bottom: 10px; padding: 5px 8px; color: white; background: #13263fcc; border-radius: 5px; font-size: 10px; }
@@ -279,8 +305,9 @@ a { color: inherit; }
   .experience-grid article { min-height: 290px; }
   .onboarding-layout > aside { position: static; }
   .site-footer { flex-direction: column; text-align: center; }
-  .school-filter { grid-template-columns: 1fr auto; }
-  .school-filter > p { grid-column: 1/-1; }
+  .school-filter { grid-template-columns: 1fr; background: linear-gradient(135deg, #162a46 0 43%, #fff 43%); }
+  .school-filter-intro { padding-bottom: 20px; }
+  .school-verification-note { grid-column: 1; margin-top: 0; }
   .admin-grid { grid-template-columns: 1fr; }
 }
 
@@ -300,9 +327,13 @@ a { color: inherit; }
   .section-heading { display: block; }
   .skill-search { margin-top: 18px; }
   .search-stack { align-items: stretch; }
-  .school-filter { grid-template-columns: 1fr; align-items: stretch; }
-  .school-filter > p { grid-column: auto; }
+  .school-filter { grid-template-columns: 1fr; align-items: stretch; padding: 23px 18px; background: linear-gradient(155deg, #162a46 0 38%, #fff 38%); }
+  .school-filter-actions { grid-template-columns: 1fr; margin-top: 14px; }
+  .school-picker { align-items: stretch; flex-direction: column; }
   .same-school-toggle { justify-content: center; }
+  .same-school-status { align-items: flex-start; flex-direction: column; }
+  .same-school-status small { flex: auto; }
+  .same-school-promise { align-items: flex-start; flex-direction: column; }
   .creator-grid, .request-grid { grid-template-columns: 1fr; }
   .creator-card { min-height: 315px; }
   .experience-grid footer { align-items: flex-start; flex-direction: column; }

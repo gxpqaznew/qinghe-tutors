@@ -1,27 +1,19 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const image = `${protocol}://${host}/og-student-skills.png`;
-
   return {
-    title: "大学生技能交换所｜技能、经验与真实需求",
-    description: "坚持个人对个人、严禁中介的大学生技能交易与学习经验分享平台。",
+    title: "大学生技能交换所｜同校优先，个人对个人",
+    description: "优先寻找同校技能分享者，坚持个人对个人、严禁中介的大学生技能与学习经验交流平台。",
     icons: { icon: "/favicon.svg" },
     openGraph: {
       title: "大学生技能交换所",
-      description: "个人对个人，严禁中介。把你会的，换成彼此的下一步。",
-      images: [image],
+      description: "先找同校，再把范围放大。个人对个人，严禁中介。",
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: "大学生技能交换所",
-      description: "个人对个人，严禁中介。把你会的，换成彼此的下一步。",
-      images: [image],
+      description: "先找同校，再把范围放大。个人对个人，严禁中介。",
     },
   };
 }

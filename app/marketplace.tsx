@@ -276,9 +276,11 @@ export function Marketplace() {
 
   useEffect(() => {
     const savedRole = localStorage.getItem("campus-role");
+    const savedSchool = localStorage.getItem("campus-university") || "";
     if (savedRole === "learner" || savedRole === "creator") setRole(savedRole);
     setCreatorReady(localStorage.getItem("campus-creator-ready") === "true");
-    setSchool(localStorage.getItem("campus-university") || "");
+    setSchool(savedSchool);
+    setSameSchoolOnly(Boolean(savedSchool));
     setHydrated(true);
   }, []);
 
@@ -370,10 +372,21 @@ export function Marketplace() {
   function updateSchool(nextSchool: string) {
     const normalized = nextSchool.trim();
     setSchool(nextSchool);
-    if (normalized) localStorage.setItem("campus-university", normalized);
+    if (normalized) {
+      localStorage.setItem("campus-university", normalized);
+      setSameSchoolOnly(true);
+    }
     else {
       localStorage.removeItem("campus-university");
       setSameSchoolOnly(false);
+    }
+  }
+
+  function openSameSchool() {
+    if (school.trim()) setSameSchoolOnly(true);
+    document.getElementById("skills")?.scrollIntoView({ behavior: "smooth" });
+    if (!school.trim()) {
+      window.setTimeout(() => document.getElementById("my-university")?.focus(), 500);
     }
   }
 
@@ -505,37 +518,40 @@ export function Marketplace() {
       <main>
         <section className="learner-hero">
           <div className="hero-copy">
-            <span className="eyebrow">大学生技能交换所</span>
-            <h1>学校里，总有人<br />刚好会你想学的。</h1>
-            <p>找同学搞懂一门大学课程、学一项实用技能、完成一次小服务，或者看看别人走过的学习弯路。身份清楚、需求具体、价格透明。</p>
+            <span className="eyebrow">同校优先的大学生技能交换所</span>
+            <h1>先找同校，<br />再把范围放大。</h1>
+            <p>从自己学校里找会这项技能的人：更容易核验彼此身份，线下见面也更方便。同校没有合适的人，再浏览其他学校。</p>
             <div className="hero-actions">
-              <a className="primary-button" href="#skills">逛逛技能</a>
+              <button className="primary-button same-school-hero-button" onClick={openSameSchool}>
+                <span>只看同校</span>
+                <small>{school.trim() ? school : "先选择我的学校"}</small>
+              </button>
               <button className="secondary-button" onClick={() => setRequestOpen(true)}>免费发需求</button>
             </div>
             <div className="trust-row">
+              <span>同校优先匹配</span>
               <span>只允许个人对个人</span>
-              <span>服务边界写清楚</span>
               <span>严禁机构与中介</span>
             </div>
           </div>
-          <div className="hero-board" aria-label="平台热门技能">
+          <div className="hero-board same-school-board" aria-label="只看同校功能介绍">
             <span className="board-pin pin-one" />
             <div className="board-card card-main">
-              <small>本周想学</small>
-              <strong>把一团信息<br />讲成一页好 PPT</strong>
-              <p>设计表达 · 线上</p>
+              <small>只看同校</small>
+              <strong>先从自己的学校<br />找到刚好会的人</strong>
+              <p>输入学校后，自动优先展示同校技能名片</p>
             </div>
-            <div className="board-card card-mini card-blue">数据分析</div>
-            <div className="board-card card-mini card-coral">摄影修图</div>
-            <div className="board-note">会一点，也能帮到另一个人。</div>
+            <div className="board-card same-school-benefit benefit-one"><b>01</b> 更方便见面</div>
+            <div className="board-card same-school-benefit benefit-two"><b>02</b> 更容易核验</div>
+            <div className="board-note">同校没有合适的，再看其他学校。</div>
           </div>
         </section>
 
         <section className="content-section" id="skills">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">技能名片</span>
-              <h2>从一个具体的小需求开始</h2>
+              <span className="eyebrow">同校技能库</span>
+              <h2>先看看身边的同学会什么</h2>
             </div>
             <div className="search-stack">
               <small>真实资料经审核后公开；标有“示例”的内容仅用于展示功能。</small>
@@ -554,6 +570,14 @@ export function Marketplace() {
             onSchoolChange={updateSchool}
             onSameSchoolChange={setSameSchoolOnly}
           />
+          {sameSchoolOnly && school.trim() && (
+            <div className="same-school-status" role="status">
+              <span>同校视图已开启</span>
+              <strong>{school}</strong>
+              <small>当前只展示与你学校名称一致的技能分享者</small>
+              <button onClick={() => setSameSchoolOnly(false)}>看看其他学校 →</button>
+            </div>
+          )}
           <div className="category-tabs" aria-label="技能分类">
             {categories.map((item) => (
               <button className={category === item ? "active" : ""} key={item} onClick={() => setCategory(item)}>{item}</button>
@@ -561,7 +585,11 @@ export function Marketplace() {
           </div>
           <div className="creator-grid">
             {filteredCreators.map((creator) => (
-              <article className="creator-card" key={creator.id} onClick={() => setActiveCreator(creator)}>
+              <article
+                className={`creator-card ${school && creator.university === school ? "same-school-card" : ""}`}
+                key={creator.id}
+                onClick={() => setActiveCreator(creator)}
+              >
                 {creator.media?.[0] && (
                   <div className="creator-cover">
                     {creator.media[0].type === "video"
@@ -771,29 +799,36 @@ function SchoolFilter({
 }) {
   return (
     <div className="school-filter">
-      <div className="school-picker">
-        <label htmlFor="my-university">我的学校</label>
-        <input
-          id="my-university"
-          list="university-options"
-          value={school}
-          onChange={(event) => onSchoolChange(event.target.value)}
-          placeholder="输入学校全称"
-        />
-        <datalist id="university-options">
-          {universitySuggestions.map((university) => <option key={university} value={university} />)}
-        </datalist>
+      <div className="school-filter-intro">
+        <span>同校优先</span>
+        <strong>把你的学校设为第一搜索范围</strong>
+        <p>先找身边可信、方便见面的同学；找不到时，随时切换到全部学校。</p>
       </div>
-      <label className={`same-school-toggle ${!school.trim() ? "disabled" : ""}`}>
-        <input
-          type="checkbox"
-          checked={sameSchoolOnly}
-          disabled={!school.trim()}
-          onChange={(event) => onSameSchoolChange(event.target.checked)}
-        />
-        <span>只看同校</span>
-      </label>
-      <p>
+      <div className="school-filter-actions">
+        <div className="school-picker">
+          <label htmlFor="my-university">我的学校</label>
+          <input
+            id="my-university"
+            list="university-options"
+            value={school}
+            onChange={(event) => onSchoolChange(event.target.value)}
+            placeholder="输入学校全称"
+          />
+          <datalist id="university-options">
+            {universitySuggestions.map((university) => <option key={university} value={university} />)}
+          </datalist>
+        </div>
+        <label className={`same-school-toggle ${!school.trim() ? "disabled" : ""}`}>
+          <input
+            type="checkbox"
+            checked={sameSchoolOnly}
+            disabled={!school.trim()}
+            onChange={(event) => onSameSchoolChange(event.target.checked)}
+          />
+          <span>{sameSchoolOnly ? "正在只看同校" : "开启只看同校"}</span>
+        </label>
+      </div>
+      <p className="school-verification-note">
         <b>同校标签只表示双方填写的学校名称一致，不等于学生身份已认证。</b>
         只有“已认证”徽章才代表完成核验；联系前请核验身份，不提前转账。
       </p>
@@ -807,9 +842,13 @@ function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
       <div className="role-shell">
         <Brand />
         <div className="role-intro">
-          <span className="eyebrow">欢迎来到大学生技能交换所</span>
-          <h1>把你会的，<br />换成彼此的下一步。</h1>
-          <p>这里不做泛泛的信息黄页。每个人都从一个具体身份、一个具体技能和一个具体需求开始。</p>
+          <span className="eyebrow">同校优先的大学生技能交换所</span>
+          <h1>先从同校开始，<br />找到彼此会的。</h1>
+          <p>优先连接同一所学校里的真实个人：身份更容易互相核验，线下交流也更方便；同校没有合适的人，再扩大范围。</p>
+        </div>
+        <div className="same-school-promise">
+          <span>只看同校</span>
+          <p><b>学校是第一层筛选，不是认证结果。</b>平台仍会标明资料状态，并持续清理机构、中介和可疑账号。</p>
         </div>
         <div className="role-choices">
           <button className="role-choice learner-choice" onClick={() => onChoose("learner")}>
