@@ -15,6 +15,7 @@ type CreatorSubmission = {
   contact: string;
   createdAt: string;
   media: Array<{ id: number; fileName: string; mediaType: "image" | "video"; size: number }>;
+  links: Array<{ label: string; url: string }>;
 };
 
 type RequestSubmission = {
@@ -133,6 +134,11 @@ export function AdminDashboard() {
             {!!item.media.length && (
               <div className="admin-media-grid">
                 {item.media.map((media) => <AdminMediaPreview key={media.id} media={media} adminKey={adminKey} />)}
+              </div>
+            )}
+            {!!item.links.length && (
+              <div className="admin-link-list">
+                {item.links.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label} →</a>)}
               </div>
             )}
           </AdminCard>

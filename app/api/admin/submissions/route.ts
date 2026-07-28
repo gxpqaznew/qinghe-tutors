@@ -24,6 +24,32 @@ function unauthorized() {
   return Response.json({ error: "管理密码不正确" }, { status: 401 });
 }
 
+function parsePortfolioLinks(value: string, legacyUrl = "") {
+  const result: Array<{ label: string; url: string }> = [];
+  const isSafeUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch {
+      return false;
+    }
+  };
+  try {
+    const parsed = JSON.parse(value) as Array<{ label?: string; url?: string }>;
+    if (Array.isArray(parsed)) {
+      for (const item of parsed) {
+        if (item.label && item.url && isSafeUrl(item.url)) result.push({ label: item.label, url: item.url });
+      }
+    }
+  } catch {
+    // Older records may not contain the JSON field yet.
+  }
+  if (legacyUrl && isSafeUrl(legacyUrl) && !result.some((item) => item.url === legacyUrl)) {
+    result.unshift({ label: "个人主页 / 作品集", url: legacyUrl });
+  }
+  return result.slice(0, 5);
+}
+
 export async function GET(request: Request) {
   if (!isAuthorized(request)) return unauthorized();
 
@@ -50,6 +76,7 @@ export async function GET(request: Request) {
     const creators = creatorRows.map((creator) => ({
       ...creator,
       media: media.filter((item) => item.creatorProfileId === creator.id),
+      links: parsePortfolioLinks(creator.portfolioLinks, creator.workUrl),
     }));
 
     return Response.json({ creators, requests, experiences });

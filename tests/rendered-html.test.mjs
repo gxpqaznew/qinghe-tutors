@@ -105,7 +105,10 @@ test("supports moderated image and video portfolios backed by private object sto
   assert.match(marketplace, /image\/jpeg,image\/png,image\/webp,video\/mp4,video\/webm/);
   assert.match(marketplace, /个人作品展示/);
   assert.match(marketplace, /<b>个人作品<\/b>/);
-  assert.match(marketplace, /暂未上传图片或视频/);
+  assert.match(marketplace, /图片作品/);
+  assert.match(marketplace, /视频作品/);
+  assert.match(marketplace, /站外链接/);
+  assert.match(marketplace, /name="portfolioLinks"/);
   assert.match(creatorApi, /最多上传 4 个作品文件/);
   assert.match(creatorApi, /MEDIA\?:\s*R2Bucket/);
   assert.match(mediaApi, /creatorProfiles\.status,\s*"published"/);

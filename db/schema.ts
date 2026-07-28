@@ -46,6 +46,7 @@ export const creatorProfiles = sqliteTable("creator_profiles", {
   mode: text("mode").notNull(),
   serviceIntro: text("service_intro").notNull(),
   workUrl: text("work_url").notNull().default(""),
+  portfolioLinks: text("portfolio_links").notNull().default("[]"),
   contact: text("contact").notNull(),
   individualConfirmed: integer("individual_confirmed").notNull().default(0),
   schoolVerificationStatus: text("school_verification_status").notNull().default("unverified"),

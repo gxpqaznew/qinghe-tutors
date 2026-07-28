@@ -21,6 +21,7 @@ type Creator = {
   source?: "published";
   schoolVerificationStatus?: string;
   media?: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
+  links?: Array<{ label: string; url: string }>;
 };
 
 type SkillRequest = {
@@ -295,6 +296,7 @@ export function Marketplace() {
         workUrl: string;
         schoolVerificationStatus: string;
         media: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
+        links: Array<{ label: string; url: string }>;
       }> }) => {
         if (!result.profiles?.length) return;
         const publishedProfiles: Creator[] = result.profiles.map((profile, index) => ({
@@ -314,6 +316,7 @@ export function Marketplace() {
           source: "published",
           schoolVerificationStatus: profile.schoolVerificationStatus,
           media: profile.media,
+          links: profile.links,
         }));
         setListedCreators([...publishedProfiles, ...creators]);
       })
@@ -581,7 +584,11 @@ export function Marketplace() {
                 <p>{creator.intro}</p>
                 <div className="portfolio-label">
                   <b>个人作品</b>
-                  <span>{creator.media?.length ? `${creator.media.length} 个图片 / 视频` : "暂未上传"}</span>
+                  <span>
+                    图片 {creator.media?.filter((item) => item.type === "image").length || 0}
+                    {" · "}视频 {creator.media?.filter((item) => item.type === "video").length || 0}
+                    {" · "}链接 {creator.links?.length || 0}
+                  </span>
                 </div>
                 <div className="creator-person">
                   <div className={`avatar ${creator.color}`}>{creator.initials}</div>
@@ -670,25 +677,7 @@ export function Marketplace() {
                 <p>{activeCreator.intro}</p>
                 <h3>同学背景</h3>
                 <p>{activeCreator.major}；{activeCreator.proof}。</p>
-                {activeCreator.workUrl && <p><a href={activeCreator.workUrl} target="_blank" rel="noreferrer">查看公开作品或个人主页 →</a></p>}
-                <h3>个人作品展示</h3>
-                {activeCreator.media?.length ? (
-                    <div className="profile-media-grid">
-                      {activeCreator.media.map((media) => (
-                        <figure key={media.id}>
-                          {media.type === "video"
-                            ? <video src={media.url} controls preload="metadata" />
-                            : <img src={media.url} alt={media.fileName} />}
-                          <figcaption>{media.fileName}</figcaption>
-                        </figure>
-                      ))}
-                    </div>
-                ) : (
-                  <div className="profile-media-empty">
-                    <b>暂未上传图片或视频</b>
-                    <span>真实用户上传并通过审核后，会在这里展示个人作品。</span>
-                  </div>
-                )}
+                <PortfolioShowcase creator={activeCreator} />
                 <h3>方式与参考价</h3>
                 <p>{activeCreator.mode} · {activeCreator.price}</p>
               </div>
@@ -718,6 +707,54 @@ export function Marketplace() {
         />
       )}
     </>
+  );
+}
+
+function PortfolioShowcase({ creator }: { creator: Creator }) {
+  const images = creator.media?.filter((item) => item.type === "image") || [];
+  const videos = creator.media?.filter((item) => item.type === "video") || [];
+  const links = creator.links || [];
+
+  return (
+    <div className="portfolio-showcase">
+      <h3>个人作品展示</h3>
+      <section className="portfolio-module">
+        <header><b>图片作品</b><span>{images.length}</span></header>
+        {images.length ? (
+          <div className="profile-media-grid">
+            {images.map((media) => (
+              <figure key={media.id}>
+                <img src={media.url} alt={media.fileName} />
+                <figcaption>{media.fileName}</figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : <div className="portfolio-module-empty">暂未上传图片</div>}
+      </section>
+
+      <section className="portfolio-module">
+        <header><b>视频作品</b><span>{videos.length}</span></header>
+        {videos.length ? (
+          <div className="profile-media-grid">
+            {videos.map((media) => (
+              <figure key={media.id}>
+                <video src={media.url} controls preload="metadata" />
+                <figcaption>{media.fileName}</figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : <div className="portfolio-module-empty">暂未上传视频</div>}
+      </section>
+
+      <section className="portfolio-module">
+        <header><b>站外链接</b><span>{links.length}</span></header>
+        {links.length ? (
+          <div className="portfolio-link-list">
+            {links.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}<span>打开 ↗</span></a>)}
+          </div>
+        ) : <div className="portfolio-module-empty">暂未添加站外作品链接</div>}
+      </section>
+    </div>
   );
 }
 
@@ -845,7 +882,11 @@ function CreatorOnboarding({
             <label>你会的课程 / 技能<input name="skill" required placeholder="例如：高数线代 / PPT视觉优化" /></label>
             <label>服务方式<input name="mode" required placeholder="例如：线上交付 / 成都线下" /></label>
             <label className="full-field">技能与服务说明<textarea name="serviceIntro" required placeholder="你能具体帮助什么、如何完成、哪些事情不做…" /></label>
-            <label className="full-field">公开作品或主页链接（选填）<input name="workUrl" type="url" placeholder="https://" /></label>
+            <label className="full-field">个人主页链接（选填）<input name="workUrl" type="url" placeholder="https://" /></label>
+            <label className="full-field">
+              更多站外作品链接（选填）
+              <textarea name="portfolioLinks" placeholder={"每行一个，最多 5 个\n例如：摄影作品集 | https://example.com/gallery\n或直接填写 https://example.com"} />
+            </label>
             <label className="full-field">
               图片 / 视频作品（选填）
               <input name="media" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple />

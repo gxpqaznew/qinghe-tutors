@@ -1,0 +1,1 @@
+ALTER TABLE `creator_profiles` ADD `portfolio_links` text DEFAULT '[]' NOT NULL;

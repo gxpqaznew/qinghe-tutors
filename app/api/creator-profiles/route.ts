@@ -6,6 +6,63 @@ import { creatorMedia, creatorProfiles } from "../../../db/schema";
 const clean = (value: unknown, max = 200) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
 
+type PortfolioLink = { label: string; url: string };
+
+function parseStoredLinks(value: string, legacyUrl = ""): PortfolioLink[] {
+  const isSafeUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch {
+      return false;
+    }
+  };
+  try {
+    const parsed = JSON.parse(value) as PortfolioLink[];
+    const links = Array.isArray(parsed) ? parsed.filter((item) => item?.label && item?.url && isSafeUrl(item.url)) : [];
+    if (legacyUrl && isSafeUrl(legacyUrl) && !links.some((item) => item.url === legacyUrl)) {
+      links.unshift({ label: "个人主页 / 作品集", url: legacyUrl });
+    }
+    return links.slice(0, 5);
+  } catch {
+    return legacyUrl && isSafeUrl(legacyUrl) ? [{ label: "个人主页 / 作品集", url: legacyUrl }] : [];
+  }
+}
+
+function parseSubmittedLinks(value: unknown) {
+  const raw = clean(value, 2000);
+  if (!raw) return { links: [] as PortfolioLink[] };
+  const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length > 5) return { error: "站外链接最多填写 5 个" };
+
+  const links: PortfolioLink[] = [];
+  for (const line of lines) {
+    const separator = line.indexOf("|");
+    const label = separator >= 0 ? line.slice(0, separator).trim().slice(0, 40) : "站外作品";
+    const url = separator >= 0 ? line.slice(separator + 1).trim() : line;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") throw new Error("invalid protocol");
+      links.push({ label: label || "站外作品", url: parsed.toString() });
+    } catch {
+      return { error: `站外链接格式不正确：${line.slice(0, 50)}` };
+    }
+  }
+  return { links };
+}
+
+function parseOptionalUrl(value: unknown) {
+  const raw = clean(value, 300);
+  if (!raw) return { url: "" };
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") throw new Error("invalid protocol");
+    return { url: parsed.toString() };
+  } catch {
+    return { error: "个人主页链接格式不正确" };
+  }
+}
+
 export async function GET() {
   try {
     const db = getDb();
@@ -20,6 +77,7 @@ export async function GET() {
         mode: creatorProfiles.mode,
         serviceIntro: creatorProfiles.serviceIntro,
         workUrl: creatorProfiles.workUrl,
+        portfolioLinks: creatorProfiles.portfolioLinks,
         schoolVerificationStatus: creatorProfiles.schoolVerificationStatus,
         createdAt: creatorProfiles.createdAt,
       })
@@ -51,6 +109,7 @@ export async function GET() {
             fileName: item.fileName,
             url: `/api/creator-media?id=${item.id}`,
           })),
+        links: parseStoredLinks(profile.portfolioLinks, profile.workUrl),
       })),
     });
   } catch (error) {
@@ -80,6 +139,15 @@ export async function POST(request: Request) {
       return Response.json({ error: "平台仅接受个人入驻，请确认个人身份" }, { status: 400 });
     }
 
+    const parsedLinks = parseSubmittedLinks(body.portfolioLinks);
+    if (parsedLinks.error) {
+      return Response.json({ error: parsedLinks.error }, { status: 400 });
+    }
+    const parsedWorkUrl = parseOptionalUrl(body.workUrl);
+    if (parsedWorkUrl.error) {
+      return Response.json({ error: parsedWorkUrl.error }, { status: 400 });
+    }
+
     const values = {
       name: clean(body.name, 40),
       city: clean(body.city, 40),
@@ -88,7 +156,8 @@ export async function POST(request: Request) {
       skill: clean(body.skill, 80),
       mode: clean(body.mode, 80),
       serviceIntro: clean(body.serviceIntro, 1200),
-      workUrl: clean(body.workUrl, 300),
+      workUrl: parsedWorkUrl.url,
+      portfolioLinks: JSON.stringify(parsedLinks.links),
       contact: clean(body.contact, 80),
       individualConfirmed: 1,
       schoolVerificationStatus: "unverified",
