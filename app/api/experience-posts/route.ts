@@ -1,8 +1,35 @@
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { experiencePosts } from "../../../db/schema";
 
 const clean = (value: unknown, max = 200) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
+
+export async function GET() {
+  try {
+    const posts = await getDb()
+      .select({
+        id: experiencePosts.id,
+        authorName: experiencePosts.authorName,
+        university: experiencePosts.university,
+        title: experiencePosts.title,
+        category: experiencePosts.category,
+        sourceUrl: experiencePosts.sourceUrl,
+        summary: experiencePosts.summary,
+        content: experiencePosts.content,
+        createdAt: experiencePosts.createdAt,
+      })
+      .from(experiencePosts)
+      .where(eq(experiencePosts.status, "published"))
+      .orderBy(desc(experiencePosts.createdAt))
+      .limit(50);
+
+    return Response.json({ posts });
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: "经验内容加载失败" }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

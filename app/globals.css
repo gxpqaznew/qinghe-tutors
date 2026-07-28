@@ -206,6 +206,43 @@ a { color: inherit; }
 .success-state > span { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto 21px; color: var(--navy); background: var(--navy-soft); border-radius: 18px 18px 18px 5px; font-size: 26px; }
 .success-state p { color: var(--muted); line-height: 1.8; }
 
+.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--navy); }
+.admin-login form { width: min(420px, 100%); padding: 42px; background: var(--paper); box-shadow: 0 28px 70px #07172966; }
+.admin-brand { color: var(--navy); font-weight: 900; }
+.admin-login form > span { display: block; margin-top: 42px; color: var(--coral); font-size: 10px; font-weight: 900; letter-spacing: 2px; }
+.admin-login h1 { margin: 8px 0 10px; color: var(--navy); font: 900 38px "Songti SC", serif; }
+.admin-login p { color: var(--muted); font-size: 12px; line-height: 1.75; }
+.admin-login label { display: block; margin: 25px 0 14px; color: var(--navy); font-size: 11px; font-weight: 800; }
+.admin-login input { width: 100%; display: block; margin-top: 8px; padding: 13px; border: 1px solid var(--line); border-radius: 7px; }
+.admin-login .primary-button { width: 100%; }
+.admin-login .form-error { display: block; margin-top: 12px; }
+.admin-page { min-height: 100vh; padding-bottom: 80px; background: #f3f0e8; }
+.admin-header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 76px; padding: 15px max(6vw, 28px); color: white; background: var(--navy); box-shadow: 0 8px 30px #14263d20; }
+.admin-header a { color: white; font-weight: 900; }
+.admin-header span { margin-left: 14px; color: #9eb0c6; font-size: 11px; }
+.admin-header b { color: #f0a38f; font-size: 24px; }
+.admin-header button { margin-left: 12px; padding: 7px 11px; color: white; background: #ffffff12; border: 1px solid #ffffff25; border-radius: 6px; }
+.admin-section { padding: 44px max(6vw, 28px) 0; }
+.admin-section h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; color: var(--navy); font: 900 29px "Songti SC", serif; }
+.admin-section h2 span { min-width: 25px; padding: 4px 8px; color: white; background: var(--coral); border-radius: 14px; font: 800 11px "Microsoft YaHei", sans-serif; text-align: center; }
+.admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-card { padding: 24px; background: white; border: 1px solid var(--line); }
+.admin-card-meta { display: flex; justify-content: space-between; gap: 15px; color: #7c8794; font-size: 10px; }
+.admin-card h3 { margin: 16px 0 10px; color: var(--navy); font: 900 22px "Songti SC", serif; }
+.admin-card p { color: var(--muted); font-size: 12px; line-height: 1.75; }
+.admin-card > small { color: #7b8795; }
+.admin-card details { color: var(--muted); font-size: 11px; }
+.admin-contact { margin-top: 18px; padding: 11px 13px; color: #425269; background: #eef2f5; font-size: 11px; }
+.admin-actions { display: flex; gap: 9px; margin-top: 20px; padding-top: 17px; border-top: 1px solid var(--line); }
+.admin-actions button { flex: 1; padding: 10px; border-radius: 6px; font-weight: 800; }
+.admin-actions .approve { color: white; background: #456f60; border: 1px solid #456f60; }
+.admin-actions .reject { color: #a94d3b; background: white; border: 1px solid #d8b3a9; }
+.admin-error { margin: 20px max(6vw, 28px) 0; padding: 13px; color: #9d3d32; background: #f5ded8; }
+.admin-empty { padding: 18vh 24px; text-align: center; }
+.admin-empty b { width: 60px; height: 60px; display: grid; place-items: center; margin: auto; color: white; background: #5f8975; border-radius: 18px; font-size: 28px; }
+.admin-empty h1 { color: var(--navy); font: 900 34px "Songti SC", serif; }
+.admin-empty p { color: var(--muted); }
+
 @media (max-width: 960px) {
   .site-nav nav, .portal-header nav { display: none; }
   .role-choices, .learner-hero, .onboarding-layout, .rules-section { grid-template-columns: 1fr; }
@@ -218,6 +255,7 @@ a { color: inherit; }
   .site-footer { flex-direction: column; text-align: center; }
   .school-filter { grid-template-columns: 1fr auto; }
   .school-filter > p { grid-column: 1/-1; }
+  .admin-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {
@@ -251,4 +289,7 @@ a { color: inherit; }
   .profile-top { padding: 42px 22px 26px; align-items: flex-start; }
   .profile-content { grid-template-columns: 1fr; padding: 26px 22px; }
   .profile-content aside { padding: 18px 0 0; border: 0; border-top: 1px solid var(--line); }
+  .admin-login form { padding: 32px 22px; }
+  .admin-header { align-items: flex-start; flex-direction: column; padding: 16px 19px; }
+  .admin-card-meta { flex-direction: column; gap: 5px; }
 }

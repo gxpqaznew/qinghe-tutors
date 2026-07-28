@@ -70,3 +70,23 @@ test("supports same-school discovery without presenting self-reported schools as
   assert.match(schema, /schoolVerificationStatus/);
   assert.match(schema, /default\("unverified"\)/);
 });
+
+test("publishes approved submissions while keeping contacts out of public endpoints", async () => {
+  const [marketplace, creatorApi, requestApi, experienceApi, adminApi] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/api/creator-profiles/route.ts", root), "utf8"),
+    readFile(new URL("app/api/skill-requests/route.ts", root), "utf8"),
+    readFile(new URL("app/api/experience-posts/route.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/submissions/route.ts", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /fetch\("\/api\/creator-profiles"\)/);
+  assert.match(marketplace, /fetch\("\/api\/experience-posts"\)/);
+  assert.match(creatorApi, /creatorProfiles\.status,\s*"published"/);
+  assert.match(experienceApi, /experiencePosts\.status,\s*"published"/);
+  assert.doesNotMatch(creatorApi.slice(creatorApi.indexOf("export async function GET"), creatorApi.indexOf("export async function POST")), /contact:\s*creatorProfiles\.contact/);
+  assert.doesNotMatch(requestApi.slice(requestApi.indexOf("export async function GET"), requestApi.indexOf("export async function POST")), /contact:\s*skillRequests\.contact/);
+  assert.match(adminApi, /x-admin-key/);
+  assert.match(adminApi, /"published"/);
+  assert.match(adminApi, /"rejected"/);
+});

@@ -1,8 +1,37 @@
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { creatorProfiles } from "../../../db/schema";
 
 const clean = (value: unknown, max = 200) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
+
+export async function GET() {
+  try {
+    const profiles = await getDb()
+      .select({
+        id: creatorProfiles.id,
+        name: creatorProfiles.name,
+        city: creatorProfiles.city,
+        university: creatorProfiles.university,
+        majorGrade: creatorProfiles.majorGrade,
+        skill: creatorProfiles.skill,
+        mode: creatorProfiles.mode,
+        serviceIntro: creatorProfiles.serviceIntro,
+        workUrl: creatorProfiles.workUrl,
+        schoolVerificationStatus: creatorProfiles.schoolVerificationStatus,
+        createdAt: creatorProfiles.createdAt,
+      })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.status, "published"))
+      .orderBy(desc(creatorProfiles.createdAt))
+      .limit(50);
+
+    return Response.json({ profiles });
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: "技能名片加载失败" }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

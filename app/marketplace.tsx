@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 type Role = "learner" | "creator";
 
 type Creator = {
-  id: number;
+  id: number | string;
   name: string;
   initials: string;
   university: string;
@@ -17,6 +17,9 @@ type Creator = {
   intro: string;
   proof: string;
   color: string;
+  workUrl?: string;
+  source?: "published";
+  schoolVerificationStatus?: string;
 };
 
 type SkillRequest = {
@@ -32,6 +35,7 @@ type SkillRequest = {
 };
 
 type Experience = {
+  id?: number | string;
   title: string;
   category: string;
   author: string;
@@ -39,6 +43,9 @@ type Experience = {
   summary: string;
   readTime: string;
   saves: number;
+  content?: string;
+  sourceUrl?: string;
+  source?: "published";
 };
 
 const creators: Creator[] = [
@@ -253,6 +260,8 @@ export function Marketplace() {
   const [category, setCategory] = useState("全部");
   const [school, setSchool] = useState("");
   const [sameSchoolOnly, setSameSchoolOnly] = useState(false);
+  const [listedCreators, setListedCreators] = useState<Creator[]>(creators);
+  const [listedExperiences, setListedExperiences] = useState<Experience[]>(experiences);
 
   useEffect(() => {
     const savedRole = localStorage.getItem("campus-role");
@@ -262,15 +271,86 @@ export function Marketplace() {
     setHydrated(true);
   }, []);
 
+  useEffect(() => {
+    fetch("/api/creator-profiles")
+      .then((response) => response.json())
+      .then((result: { profiles?: Array<{
+        id: number;
+        name: string;
+        university: string;
+        majorGrade: string;
+        skill: string;
+        mode: string;
+        serviceIntro: string;
+        workUrl: string;
+        schoolVerificationStatus: string;
+      }> }) => {
+        if (!result.profiles?.length) return;
+        const publishedProfiles: Creator[] = result.profiles.map((profile, index) => ({
+          id: `profile-${profile.id}`,
+          name: profile.name,
+          initials: profile.name.slice(0, 1),
+          university: profile.university,
+          major: profile.majorGrade,
+          skill: profile.skill,
+          category: "同学技能",
+          mode: profile.mode,
+          price: "价格面议",
+          intro: profile.serviceIntro,
+          proof: profile.workUrl ? "已提交公开作品链接" : "资料已通过平台审核",
+          color: ["coral", "blue", "navy", "gold", "green", "violet"][index % 6],
+          workUrl: profile.workUrl,
+          source: "published",
+          schoolVerificationStatus: profile.schoolVerificationStatus,
+        }));
+        setListedCreators([...publishedProfiles, ...creators]);
+      })
+      .catch(() => {
+        // 网络异常时保留示例内容。
+      });
+
+    fetch("/api/experience-posts")
+      .then((response) => response.json())
+      .then((result: { posts?: Array<{
+        id: number;
+        authorName: string;
+        university: string;
+        title: string;
+        category: string;
+        sourceUrl: string;
+        summary: string;
+        content: string;
+      }> }) => {
+        if (!result.posts?.length) return;
+        const publishedPosts: Experience[] = result.posts.map((post) => ({
+          id: `experience-${post.id}`,
+          title: post.title,
+          category: post.category,
+          author: post.authorName,
+          university: post.university,
+          summary: post.summary,
+          readTime: "经验分享",
+          saves: 0,
+          content: post.content,
+          sourceUrl: post.sourceUrl,
+          source: "published",
+        }));
+        setListedExperiences([...publishedPosts, ...experiences]);
+      })
+      .catch(() => {
+        // 网络异常时保留示例内容。
+      });
+  }, []);
+
   const filteredCreators = useMemo(() => {
     const key = query.trim();
-    return creators.filter((creator) => {
+    return listedCreators.filter((creator) => {
       const categoryMatches = category === "全部" || creator.category === category;
       const queryMatches = !key || `${creator.name}${creator.university}${creator.major}${creator.skill}${creator.category}`.includes(key);
       const schoolMatches = !sameSchoolOnly || (!!school && creator.university === school);
       return categoryMatches && queryMatches && schoolMatches;
     });
-  }, [category, query, sameSchoolOnly, school]);
+  }, [category, listedCreators, query, sameSchoolOnly, school]);
 
   function updateSchool(nextSchool: string) {
     const normalized = nextSchool.trim();
@@ -443,7 +523,7 @@ export function Marketplace() {
               <h2>从一个具体的小需求开始</h2>
             </div>
             <div className="search-stack">
-              <small>当前展示为功能示例，真实资料上线前会经过审核。</small>
+              <small>真实资料经审核后公开；标有“示例”的内容仅用于展示功能。</small>
               <input
                 className="skill-search"
                 value={query}
@@ -468,7 +548,13 @@ export function Marketplace() {
             {filteredCreators.map((creator) => (
               <article className="creator-card" key={creator.id} onClick={() => setActiveCreator(creator)}>
                 <div className="card-topline">
-                  <span>{school && creator.university === school ? "同校 · 待认证" : `${creator.category} · 示例`}</span>
+                  <span>
+                    {school && creator.university === school
+                      ? `同校 · ${creator.schoolVerificationStatus === "verified" ? "已认证" : "待认证"}`
+                      : creator.source === "published"
+                        ? "已审核发布"
+                        : `${creator.category} · 示例`}
+                  </span>
                   <b>{creator.price}</b>
                 </div>
                 <h3>{creator.skill}</h3>
@@ -499,15 +585,15 @@ export function Marketplace() {
             <p>说清楚你遇到了什么、怎么试、最后有什么改变，就能让别人少绕一点路。</p>
           </div>
           <div className="experience-grid">
-            {experiences.map((item, index) => (
-              <article key={item.title}>
-                <div className="article-number">0{index + 1}</div>
+            {listedExperiences.map((item, index) => (
+              <article key={item.id || item.title}>
+                <div className="article-number">{String(index + 1).padStart(2, "0")}</div>
                 <span>{item.category}</span>
                 <h3>{item.title}</h3>
                 <p>{item.summary}</p>
                 <footer>
                   <b>{item.author} · {item.university}</b>
-                  <small>{item.readTime} · {item.saves} 人收藏</small>
+                  <small>{item.source === "published" ? "已审核发布" : `${item.readTime} · ${item.saves} 人收藏`}</small>
                 </footer>
               </article>
             ))}
@@ -546,7 +632,11 @@ export function Marketplace() {
                 <h2>{activeCreator.skill}</h2>
                 <strong>{activeCreator.name} · {activeCreator.university}</strong>
                 <small className="individual-badge">
-                  {school && activeCreator.university === school ? "同校 · 学校信息待认证" : "个人技能分享者 · 示例资料"}
+                  {school && activeCreator.university === school
+                    ? `同校 · ${activeCreator.schoolVerificationStatus === "verified" ? "学校身份已认证" : "学校信息待认证"}`
+                    : activeCreator.source === "published"
+                      ? "个人技能分享者 · 资料已审核"
+                      : "个人技能分享者 · 示例资料"}
                 </small>
               </div>
             </div>
@@ -556,6 +646,7 @@ export function Marketplace() {
                 <p>{activeCreator.intro}</p>
                 <h3>同学背景</h3>
                 <p>{activeCreator.major}；{activeCreator.proof}。</p>
+                {activeCreator.workUrl && <p><a href={activeCreator.workUrl} target="_blank" rel="noreferrer">查看公开作品或个人主页 →</a></p>}
                 <h3>方式与参考价</h3>
                 <p>{activeCreator.mode} · {activeCreator.price}</p>
               </div>
