@@ -43,13 +43,27 @@ type ExperienceSubmission = {
   createdAt: string;
 };
 
+type ReviewSubmission = {
+  id: number;
+  creatorProfileId: number;
+  creatorName: string;
+  creatorSkill: string;
+  reviewerName: string;
+  reviewerUniversity: string;
+  rating: number;
+  content: string;
+  contact: string;
+  createdAt: string;
+};
+
 type Submissions = {
   creators: CreatorSubmission[];
   requests: RequestSubmission[];
   experiences: ExperienceSubmission[];
+  reviews: ReviewSubmission[];
 };
 
-const emptySubmissions: Submissions = { creators: [], requests: [], experiences: [] };
+const emptySubmissions: Submissions = { creators: [], requests: [], experiences: [], reviews: [] };
 
 export function AdminDashboard() {
   const [adminKey, setAdminKey] = useState("");
@@ -80,7 +94,7 @@ export function AdminDashboard() {
     void loadSubmissions(adminKey);
   }
 
-  async function moderate(kind: "creator" | "request" | "experience", id: number, status: "published" | "rejected") {
+  async function moderate(kind: "creator" | "request" | "experience" | "review", id: number, status: "published" | "rejected") {
     setLoading(true);
     setError("");
     try {
@@ -114,7 +128,7 @@ export function AdminDashboard() {
     );
   }
 
-  const total = submissions.creators.length + submissions.requests.length + submissions.experiences.length;
+  const total = submissions.creators.length + submissions.requests.length + submissions.experiences.length + submissions.reviews.length;
 
   return (
     <main className="admin-page">
@@ -157,6 +171,24 @@ export function AdminDashboard() {
         {submissions.experiences.map((item) => (
           <AdminCard key={item.id} title={item.title} meta={`${item.authorName} · ${item.university} · ${item.category}`} createdAt={item.createdAt} onApprove={() => moderate("experience", item.id, "published")} onReject={() => moderate("experience", item.id, "rejected")} disabled={loading}>
             <p>{item.summary}</p><details><summary>查看正文</summary><p>{item.content}</p></details>
+          </AdminCard>
+        ))}
+      </AdminSection>
+
+      <AdminSection title="个人主页评价" count={submissions.reviews.length}>
+        {submissions.reviews.map((item) => (
+          <AdminCard
+            key={item.id}
+            title={`${"★".repeat(item.rating)}${"☆".repeat(5 - item.rating)} · 评价 ${item.creatorName}`}
+            meta={`${item.creatorSkill} · ${item.reviewerName}${item.reviewerUniversity ? ` · ${item.reviewerUniversity}` : ""}`}
+            contact={item.contact}
+            createdAt={item.createdAt}
+            onApprove={() => moderate("review", item.id, "published")}
+            onReject={() => moderate("review", item.id, "rejected")}
+            disabled={loading}
+          >
+            <p>{item.content}</p>
+            <small>评价经审核后公开；审核不代表平台已核验交易事实。</small>
           </AdminCard>
         ))}
       </AdminSection>

@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { creatorMedia, creatorProfiles } from "../../../db/schema";
+import { creatorMedia, creatorProfiles, creatorReviews } from "../../../db/schema";
 
 const clean = (value: unknown, max = 200) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -97,6 +97,24 @@ export async function GET() {
           .from(creatorMedia)
           .where(inArray(creatorMedia.creatorProfileId, profiles.map((profile) => profile.id)))
       : [];
+    const reviews = profiles.length
+      ? await db
+          .select({
+            id: creatorReviews.id,
+            creatorProfileId: creatorReviews.creatorProfileId,
+            reviewerName: creatorReviews.reviewerName,
+            reviewerUniversity: creatorReviews.reviewerUniversity,
+            rating: creatorReviews.rating,
+            content: creatorReviews.content,
+            createdAt: creatorReviews.createdAt,
+          })
+          .from(creatorReviews)
+          .where(and(
+            inArray(creatorReviews.creatorProfileId, profiles.map((profile) => profile.id)),
+            eq(creatorReviews.status, "published"),
+          ))
+          .orderBy(desc(creatorReviews.createdAt))
+      : [];
 
     return Response.json({
       profiles: profiles.map((profile) => ({
@@ -110,6 +128,9 @@ export async function GET() {
             url: `/api/creator-media?id=${item.id}`,
           })),
         links: parseStoredLinks(profile.portfolioLinks, profile.workUrl),
+        reviews: reviews
+          .filter((review) => review.creatorProfileId === profile.id)
+          .map(({ creatorProfileId: _creatorProfileId, ...review }) => review),
       })),
     });
   } catch (error) {

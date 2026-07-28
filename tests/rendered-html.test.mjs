@@ -71,6 +71,26 @@ test("supports same-school discovery without presenting self-reported schools as
   assert.match(schema, /default\("unverified"\)/);
 });
 
+test("filters by city before school and publishes moderated profile reviews", async () => {
+  const [marketplace, reviewApi, creatorApi, adminApi, schema] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/api/creator-reviews/route.ts", root), "utf8"),
+    readFile(new URL("app/api/creator-profiles/route.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/submissions/route.ts", root), "utf8"),
+    readFile(new URL("db/schema.ts", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /先选择城市/);
+  assert.match(marketplace, /所在城市/);
+  assert.match(marketplace, /别人如何评价这位技能分享者/);
+  assert.match(marketplace, /完成交流后评价/);
+  assert.match(reviewApi, /creatorProfiles\.status,\s*"published"/);
+  assert.match(reviewApi, /status:\s*"pending"/);
+  assert.match(creatorApi, /creatorReviews\.status,\s*"published"/);
+  assert.match(adminApi, /body\.kind === "review"/);
+  assert.match(schema, /creatorReviews/);
+});
+
 test("publishes approved submissions while keeping contacts out of public endpoints", async () => {
   const [marketplace, creatorApi, requestApi, experienceApi, adminApi] = await Promise.all([
     readFile(new URL("app/marketplace.tsx", root), "utf8"),

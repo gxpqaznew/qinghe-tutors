@@ -1,9 +1,9 @@
 import { env } from "cloudflare:workers";
 import { desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "../../../../db";
-import { creatorMedia, creatorProfiles, experiencePosts, skillRequests } from "../../../../db/schema";
+import { creatorMedia, creatorProfiles, creatorReviews, experiencePosts, skillRequests } from "../../../../db/schema";
 
-type SubmissionKind = "creator" | "request" | "experience";
+type SubmissionKind = "creator" | "request" | "experience" | "review";
 
 function safeEqual(left: string, right: string) {
   if (!left || !right || left.length !== right.length) return false;
@@ -55,10 +55,28 @@ export async function GET(request: Request) {
 
   try {
     const db = getDb();
-    const [creatorRows, requests, experiences] = await Promise.all([
+    const [creatorRows, requests, experiences, reviews] = await Promise.all([
       db.select().from(creatorProfiles).where(eq(creatorProfiles.status, "pending")).orderBy(desc(creatorProfiles.createdAt)).limit(100),
       db.select().from(skillRequests).where(eq(skillRequests.status, "pending")).orderBy(desc(skillRequests.createdAt)).limit(100),
       db.select().from(experiencePosts).where(eq(experiencePosts.status, "pending")).orderBy(desc(experiencePosts.createdAt)).limit(100),
+      db
+        .select({
+          id: creatorReviews.id,
+          creatorProfileId: creatorReviews.creatorProfileId,
+          creatorName: creatorProfiles.name,
+          creatorSkill: creatorProfiles.skill,
+          reviewerName: creatorReviews.reviewerName,
+          reviewerUniversity: creatorReviews.reviewerUniversity,
+          rating: creatorReviews.rating,
+          content: creatorReviews.content,
+          contact: creatorReviews.contact,
+          createdAt: creatorReviews.createdAt,
+        })
+        .from(creatorReviews)
+        .innerJoin(creatorProfiles, eq(creatorProfiles.id, creatorReviews.creatorProfileId))
+        .where(eq(creatorReviews.status, "pending"))
+        .orderBy(desc(creatorReviews.createdAt))
+        .limit(100),
     ]);
 
     const media = creatorRows.length
@@ -79,7 +97,7 @@ export async function GET(request: Request) {
       links: parsePortfolioLinks(creator.portfolioLinks, creator.workUrl),
     }));
 
-    return Response.json({ creators, requests, experiences });
+    return Response.json({ creators, requests, experiences, reviews });
   } catch (error) {
     console.error(error);
     return Response.json({ error: "审核数据加载失败" }, { status: 500 });
@@ -104,6 +122,8 @@ export async function PATCH(request: Request) {
         ? skillRequests
         : body.kind === "experience"
           ? experiencePosts
+          : body.kind === "review"
+            ? creatorReviews
           : null;
 
     if (!table) return Response.json({ error: "审核类型无效" }, { status: 400 });

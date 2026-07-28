@@ -65,6 +65,18 @@ export const creatorMedia = sqliteTable("creator_media", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const creatorReviews = sqliteTable("creator_reviews", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  creatorProfileId: integer("creator_profile_id").notNull(),
+  reviewerName: text("reviewer_name").notNull(),
+  reviewerUniversity: text("reviewer_university").notNull().default(""),
+  rating: integer("rating").notNull(),
+  content: text("content").notNull(),
+  contact: text("contact").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const skillRequests = sqliteTable("skill_requests", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),

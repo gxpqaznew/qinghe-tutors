@@ -6,8 +6,10 @@ type Role = "learner" | "creator";
 
 type Creator = {
   id: number | string;
+  profileId?: number;
   name: string;
   initials: string;
+  city: string;
   university: string;
   major: string;
   skill: string;
@@ -22,6 +24,16 @@ type Creator = {
   schoolVerificationStatus?: string;
   media?: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
   links?: Array<{ label: string; url: string }>;
+  reviews?: CreatorReview[];
+};
+
+type CreatorReview = {
+  id: number | string;
+  reviewerName: string;
+  reviewerUniversity: string;
+  rating: number;
+  content: string;
+  createdAt: string;
 };
 
 type SkillRequest = {
@@ -55,6 +67,7 @@ const creators: Creator[] = [
     id: 1,
     name: "林小满",
     initials: "林",
+    city: "成都",
     university: "四川大学",
     major: "新闻传播 · 大三",
     skill: "PPT视觉优化",
@@ -64,11 +77,16 @@ const creators: Creator[] = [
     intro: "帮你理清信息层级、统一版式，让课程展示和社团路演更好讲。",
     proof: "已完成 18 次校园展示优化",
     color: "coral",
+    reviews: [
+      { id: "review-1", reviewerName: "陈同学", reviewerUniversity: "四川大学", rating: 5, content: "会先问清楚展示场景，再给修改建议，版式思路讲得很明白。", createdAt: "2026-07" },
+      { id: "review-2", reviewerName: "周同学", reviewerUniversity: "四川大学", rating: 4, content: "反馈很具体，交付时间也和事先说的一致。", createdAt: "2026-06" },
+    ],
   },
   {
     id: 2,
     name: "周予安",
     initials: "周",
+    city: "成都",
     university: "电子科技大学",
     major: "计算机科学 · 研一",
     skill: "Python 数据分析入门",
@@ -78,11 +96,15 @@ const creators: Creator[] = [
     intro: "从真实小数据开始，陪你跑通清洗、可视化和结果表达，不代做课程作业。",
     proof: "校内数据社群分享者",
     color: "blue",
+    reviews: [
+      { id: "review-3", reviewerName: "林同学", reviewerUniversity: "电子科技大学", rating: 5, content: "不是直接给答案，而是带着我把数据清洗流程跑通了。", createdAt: "2026-07" },
+    ],
   },
   {
     id: 3,
     name: "吴嘉树",
     initials: "吴",
+    city: "成都",
     university: "电子科技大学",
     major: "数学与应用数学 · 大三",
     skill: "高数与线代梳理",
@@ -97,6 +119,7 @@ const creators: Creator[] = [
     id: 4,
     name: "唐可",
     initials: "唐",
+    city: "成都",
     university: "西南交通大学",
     major: "建筑学 · 大四",
     skill: "校园人像摄影",
@@ -111,6 +134,7 @@ const creators: Creator[] = [
     id: 5,
     name: "许知遥",
     initials: "许",
+    city: "成都",
     university: "西南财经大学",
     major: "金融学 · 大三",
     skill: "英语口语陪练",
@@ -125,6 +149,7 @@ const creators: Creator[] = [
     id: 6,
     name: "叶青",
     initials: "叶",
+    city: "成都",
     university: "成都理工大学",
     major: "数字媒体 · 大二",
     skill: "短视频剪辑陪跑",
@@ -139,6 +164,7 @@ const creators: Creator[] = [
     id: 7,
     name: "陈一",
     initials: "陈",
+    city: "成都",
     university: "四川音乐学院",
     major: "流行演唱 · 大三",
     skill: "零基础吉他入门",
@@ -235,7 +261,30 @@ const sampleRequests: SkillRequest[] = [
 ];
 
 const categories = ["全部", "大学课程", "设计表达", "编程与数据", "摄影影像", "语言表达", "兴趣生活"];
-const universitySuggestions = ["四川大学", "电子科技大学", "西南交通大学", "西南财经大学", "成都理工大学", "四川音乐学院"];
+const schoolsByCity: Record<string, string[]> = {
+  成都: ["四川大学", "电子科技大学", "西南交通大学", "西南财经大学", "成都理工大学", "四川音乐学院", "成都信息工程大学", "西华大学"],
+  北京: ["北京大学", "清华大学", "中国人民大学", "北京师范大学", "北京航空航天大学", "北京理工大学"],
+  上海: ["复旦大学", "上海交通大学", "同济大学", "华东师范大学", "上海财经大学"],
+  广州: ["中山大学", "华南理工大学", "暨南大学", "华南师范大学"],
+  深圳: ["深圳大学", "南方科技大学", "香港中文大学（深圳）"],
+  重庆: ["重庆大学", "西南大学", "重庆邮电大学", "西南政法大学"],
+  武汉: ["武汉大学", "华中科技大学", "武汉理工大学", "华中师范大学"],
+  西安: ["西安交通大学", "西北工业大学", "西安电子科技大学", "陕西师范大学"],
+  南京: ["南京大学", "东南大学", "南京师范大学", "南京航空航天大学"],
+  杭州: ["浙江大学", "杭州电子科技大学", "浙江工业大学", "浙江工商大学"],
+};
+const citySuggestions = Object.keys(schoolsByCity);
+const universitySuggestions = Object.values(schoolsByCity).flat();
+
+function inferCityFromSchool(school: string) {
+  return citySuggestions.find((city) => schoolsByCity[city].includes(school)) || "";
+}
+
+function reviewSummary(reviews: CreatorReview[] = []) {
+  if (!reviews.length) return { average: "暂无", count: 0 };
+  const average = reviews.reduce((total, review) => total + review.rating, 0) / reviews.length;
+  return { average: average.toFixed(1), count: reviews.length };
+}
 
 async function postForm(url: string, form: HTMLFormElement) {
   const payload = Object.fromEntries(new FormData(form).entries());
@@ -269,6 +318,7 @@ export function Marketplace() {
   const [formError, setFormError] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
+  const [city, setCity] = useState("");
   const [school, setSchool] = useState("");
   const [sameSchoolOnly, setSameSchoolOnly] = useState(false);
   const [listedCreators, setListedCreators] = useState<Creator[]>(creators);
@@ -277,8 +327,10 @@ export function Marketplace() {
   useEffect(() => {
     const savedRole = localStorage.getItem("campus-role");
     const savedSchool = localStorage.getItem("campus-university") || "";
+    const savedCity = localStorage.getItem("campus-city") || inferCityFromSchool(savedSchool);
     if (savedRole === "learner" || savedRole === "creator") setRole(savedRole);
     setCreatorReady(localStorage.getItem("campus-creator-ready") === "true");
+    setCity(savedCity);
     setSchool(savedSchool);
     setSameSchoolOnly(Boolean(savedSchool));
     setHydrated(true);
@@ -290,6 +342,7 @@ export function Marketplace() {
       .then((result: { profiles?: Array<{
         id: number;
         name: string;
+        city: string;
         university: string;
         majorGrade: string;
         skill: string;
@@ -299,12 +352,15 @@ export function Marketplace() {
         schoolVerificationStatus: string;
         media: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
         links: Array<{ label: string; url: string }>;
+        reviews: CreatorReview[];
       }> }) => {
         if (!result.profiles?.length) return;
         const publishedProfiles: Creator[] = result.profiles.map((profile, index) => ({
           id: `profile-${profile.id}`,
+          profileId: profile.id,
           name: profile.name,
           initials: profile.name.slice(0, 1),
+          city: profile.city,
           university: profile.university,
           major: profile.majorGrade,
           skill: profile.skill,
@@ -319,6 +375,7 @@ export function Marketplace() {
           schoolVerificationStatus: profile.schoolVerificationStatus,
           media: profile.media,
           links: profile.links,
+          reviews: profile.reviews,
         }));
         setListedCreators([...publishedProfiles, ...creators]);
       })
@@ -364,16 +421,31 @@ export function Marketplace() {
     return listedCreators.filter((creator) => {
       const categoryMatches = category === "全部" || creator.category === category;
       const queryMatches = !key || `${creator.name}${creator.university}${creator.major}${creator.skill}${creator.category}`.includes(key);
+      const cityMatches = !city || creator.city === city;
       const schoolMatches = !sameSchoolOnly || (!!school && creator.university === school);
-      return categoryMatches && queryMatches && schoolMatches;
+      return categoryMatches && queryMatches && cityMatches && schoolMatches;
     });
-  }, [category, listedCreators, query, sameSchoolOnly, school]);
+  }, [category, city, listedCreators, query, sameSchoolOnly, school]);
+
+  function updateCity(nextCity: string) {
+    setCity(nextCity);
+    setSchool("");
+    setSameSchoolOnly(false);
+    localStorage.removeItem("campus-university");
+    if (nextCity) localStorage.setItem("campus-city", nextCity);
+    else localStorage.removeItem("campus-city");
+  }
 
   function updateSchool(nextSchool: string) {
     const normalized = nextSchool.trim();
     setSchool(nextSchool);
     if (normalized) {
       localStorage.setItem("campus-university", normalized);
+      const inferredCity = inferCityFromSchool(normalized);
+      if (!city && inferredCity) {
+        setCity(inferredCity);
+        localStorage.setItem("campus-city", inferredCity);
+      }
       setSameSchoolOnly(true);
     }
     else {
@@ -386,7 +458,7 @@ export function Marketplace() {
     if (school.trim()) setSameSchoolOnly(true);
     document.getElementById("skills")?.scrollIntoView({ behavior: "smooth" });
     if (!school.trim()) {
-      window.setTimeout(() => document.getElementById("my-university")?.focus(), 500);
+      window.setTimeout(() => document.getElementById(city ? "my-university" : "my-city")?.focus(), 500);
     }
   }
 
@@ -406,7 +478,9 @@ export function Marketplace() {
 
   async function submitCreator(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const submittedSchool = String(new FormData(event.currentTarget).get("university") || "").trim();
+    const formData = new FormData(event.currentTarget);
+    const submittedSchool = String(formData.get("university") || "").trim();
+    const submittedCity = String(formData.get("city") || "").trim();
     setSubmitting(true);
     setFormError("");
     try {
@@ -415,6 +489,10 @@ export function Marketplace() {
       if (submittedSchool) {
         localStorage.setItem("campus-university", submittedSchool);
         setSchool(submittedSchool);
+      }
+      if (submittedCity) {
+        localStorage.setItem("campus-city", submittedCity);
+        setCity(submittedCity);
       }
       setCreatorReady(true);
       setSubmitted("creator");
@@ -463,6 +541,7 @@ export function Marketplace() {
   if (role === "creator" && !creatorReady) {
     return (
       <CreatorOnboarding
+        city={city}
         school={school}
         onSubmit={submitCreator}
         submitting={submitting}
@@ -524,7 +603,7 @@ export function Marketplace() {
             <div className="hero-actions">
               <button className="primary-button same-school-hero-button" onClick={openSameSchool}>
                 <span>只看同校</span>
-                <small>{school.trim() ? school : "先选择我的学校"}</small>
+                <small>{school.trim() ? `${city} · ${school}` : city ? `${city} · 再选择学校` : "先选择城市和学校"}</small>
               </button>
               <button className="secondary-button" onClick={() => setRequestOpen(true)}>免费发需求</button>
             </div>
@@ -565,17 +644,26 @@ export function Marketplace() {
             </div>
           </div>
           <SchoolFilter
+            city={city}
             school={school}
             sameSchoolOnly={sameSchoolOnly}
+            onCityChange={updateCity}
             onSchoolChange={updateSchool}
             onSameSchoolChange={setSameSchoolOnly}
           />
           {sameSchoolOnly && school.trim() && (
             <div className="same-school-status" role="status">
               <span>同校视图已开启</span>
-              <strong>{school}</strong>
+              <strong>{city} · {school}</strong>
               <small>当前只展示与你学校名称一致的技能分享者</small>
               <button onClick={() => setSameSchoolOnly(false)}>看看其他学校 →</button>
+            </div>
+          )}
+          {city && !sameSchoolOnly && (
+            <div className="same-school-status city-status" role="status">
+              <span>城市范围</span>
+              <strong>{city}</strong>
+              <small>{school ? `已选择 ${school}，可开启“只看同校”` : "请选择学校，或先浏览这座城市的技能分享者"}</small>
             </div>
           )}
           <div className="category-tabs" aria-label="技能分类">
@@ -620,9 +708,17 @@ export function Marketplace() {
                 </div>
                 <div className="creator-person">
                   <div className={`avatar ${creator.color}`}>{creator.initials}</div>
-                  <div><strong>{creator.name}</strong><small>{creator.university} · {creator.major}</small></div>
+                  <div><strong>{creator.name}</strong><small>{creator.city} · {creator.university} · {creator.major}</small></div>
                 </div>
-                <div className="card-footer"><span>{creator.mode}</span><button>查看主页 →</button></div>
+                <div className="card-footer">
+                  <span>{creator.mode}</span>
+                  <span className="card-rating">
+                    {reviewSummary(creator.reviews).count
+                      ? `★ ${reviewSummary(creator.reviews).average} · ${reviewSummary(creator.reviews).count} 条评价`
+                      : "暂无评价"}
+                  </span>
+                  <button>查看主页 →</button>
+                </div>
               </article>
             ))}
             {!filteredCreators.length && (
@@ -689,7 +785,7 @@ export function Marketplace() {
               <div>
                 <span className="eyebrow">{activeCreator.category}</span>
                 <h2>{activeCreator.skill}</h2>
-                <strong>{activeCreator.name} · {activeCreator.university}</strong>
+                <strong>{activeCreator.name} · {activeCreator.city} · {activeCreator.university}</strong>
                 <small className="individual-badge">
                   {school && activeCreator.university === school
                     ? `同校 · ${activeCreator.schoolVerificationStatus === "verified" ? "学校身份已认证" : "学校信息待认证"}`
@@ -716,6 +812,7 @@ export function Marketplace() {
                 <small>禁止代写、替考和学术不端</small>
               </aside>
             </div>
+            <CreatorReviews creator={activeCreator} />
           </section>
         </div>
       )}
@@ -735,6 +832,98 @@ export function Marketplace() {
         />
       )}
     </>
+  );
+}
+
+function CreatorReviews({ creator }: { creator: Creator }) {
+  const [formOpen, setFormOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const reviews = creator.reviews || [];
+  const summary = reviewSummary(reviews);
+
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!creator.profileId) return;
+    setSubmitting(true);
+    setError("");
+    const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+    try {
+      const response = await fetch("/api/creator-reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, creatorProfileId: creator.profileId }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "评价提交失败");
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "评价提交失败");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <section className="reviews-section">
+      <header className="reviews-heading">
+        <div>
+          <span>公开反馈</span>
+          <h3>别人如何评价这位技能分享者</h3>
+        </div>
+        <div className="rating-overview">
+          <strong>{summary.average}</strong>
+          <span>{summary.count ? "★★★★★" : "☆☆☆☆☆"}</span>
+          <small>{summary.count ? `${summary.count} 条已公开评价` : "暂时没有公开评价"}</small>
+        </div>
+      </header>
+
+      {reviews.length ? (
+        <div className="review-list">
+          {reviews.map((review) => (
+            <article key={review.id}>
+              <div>
+                <strong>{review.reviewerName}</strong>
+                <span>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
+              </div>
+              <small>{review.reviewerUniversity || "学校未公开"} · {review.createdAt}</small>
+              <p>{review.content}</p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="reviews-empty">还没有公开反馈。第一条评价通过审核后会出现在这里。</div>
+      )}
+
+      <div className="review-action">
+        <p>评价需经过内容审核后公开；审核只代表内容符合规则，不代表平台已核验交易事实。</p>
+        {creator.profileId
+          ? <button className="secondary-button compact" onClick={() => { setFormOpen(!formOpen); setSubmitted(false); }}>完成交流后评价</button>
+          : <small>示例主页暂不接受评价</small>}
+      </div>
+
+      {formOpen && creator.profileId && (
+        <div className="review-form">
+          {submitted ? (
+            <div className="review-success"><b>✓</b><strong>评价已提交审核</strong><p>审核通过后会展示在这个个人主页。</p></div>
+          ) : (
+            <form onSubmit={submitReview}>
+              <label>你的称呼<input name="reviewerName" required placeholder="例如：陈同学" /></label>
+              <label>你的学校（选填）<input name="reviewerUniversity" list="review-school-options" placeholder="例如：四川大学" /></label>
+              <datalist id="review-school-options">{universitySuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+              <label>评分<select name="rating" required defaultValue=""><option value="" disabled>请选择</option>{[5, 4, 3, 2, 1].map((value) => <option key={value} value={value}>{value} 星</option>)}</select></label>
+              <label>联系方式（仅审核可见）<input name="contact" required placeholder="手机号 / 微信号" /></label>
+              <label className="full-field">真实反馈<textarea name="content" required maxLength={500} placeholder="对方做得怎么样？是否按约定沟通和交付？" /></label>
+              <label className="consent-field full-field"><input type="checkbox" name="consent" required />我确认这是本人真实交流后的评价，并同意经审核后公开评价内容。</label>
+              <label className="honeypot">请勿填写<input name="website" tabIndex={-1} autoComplete="off" /></label>
+              {error && <p className="form-error full-field">{error}</p>}
+              <button className="primary-button full-field" disabled={submitting}>{submitting ? "正在提交…" : "提交评价审核"}</button>
+            </form>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -787,13 +976,17 @@ function PortfolioShowcase({ creator }: { creator: Creator }) {
 }
 
 function SchoolFilter({
+  city,
   school,
   sameSchoolOnly,
+  onCityChange,
   onSchoolChange,
   onSameSchoolChange,
 }: {
+  city: string;
   school: string;
   sameSchoolOnly: boolean;
+  onCityChange: (city: string) => void;
   onSchoolChange: (school: string) => void;
   onSameSchoolChange: (checked: boolean) => void;
 }) {
@@ -805,18 +998,30 @@ function SchoolFilter({
         <p>先找身边可信、方便见面的同学；找不到时，随时切换到全部学校。</p>
       </div>
       <div className="school-filter-actions">
+        <div className="location-step">
+          <span>1</span>
+          <label htmlFor="my-city">
+            所在城市
+            <input id="my-city" list="city-options" value={city} onChange={(event) => onCityChange(event.target.value)} placeholder="选择或输入城市" />
+            <datalist id="city-options">{citySuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+          </label>
+        </div>
         <div className="school-picker">
-          <label htmlFor="my-university">我的学校</label>
-          <input
-            id="my-university"
-            list="university-options"
-            value={school}
-            onChange={(event) => onSchoolChange(event.target.value)}
-            placeholder="输入学校全称"
-          />
-          <datalist id="university-options">
-            {universitySuggestions.map((university) => <option key={university} value={university} />)}
-          </datalist>
+          <span>2</span>
+          <label htmlFor="my-university">
+            我的学校
+            <input
+              id="my-university"
+              list="university-options"
+              value={school}
+              disabled={!city}
+              onChange={(event) => onSchoolChange(event.target.value)}
+              placeholder={city ? "选择或输入学校全称" : "请先选择城市"}
+            />
+            <datalist id="university-options">
+              {(schoolsByCity[city] || []).map((university) => <option key={university} value={university} />)}
+            </datalist>
+          </label>
         </div>
         <label className={`same-school-toggle ${!school.trim() ? "disabled" : ""}`}>
           <input
@@ -825,7 +1030,7 @@ function SchoolFilter({
             disabled={!school.trim()}
             onChange={(event) => onSameSchoolChange(event.target.checked)}
           />
-          <span>{sameSchoolOnly ? "正在只看同校" : "开启只看同校"}</span>
+          <span><b>3</b>{sameSchoolOnly ? "正在只看同校" : "开启只看同校"}</span>
         </label>
       </div>
       <p className="school-verification-note">
@@ -873,6 +1078,7 @@ function RoleGate({ onChoose }: { onChoose: (role: Role) => void }) {
 }
 
 function CreatorOnboarding({
+  city,
   school,
   onSubmit,
   submitting,
@@ -880,6 +1086,7 @@ function CreatorOnboarding({
   onSwitch,
   onExisting,
 }: {
+  city: string;
   school: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   submitting: boolean;
@@ -909,7 +1116,11 @@ function CreatorOnboarding({
           <p>仅接受大学生个人入驻。机构、工作室、中介、招生代理和替他人接单的账号不会通过审核。</p>
           <form onSubmit={onSubmit}>
             <label>昵称 / 姓名<input name="name" required placeholder="例如：林小满" /></label>
-            <label>所在城市<input name="city" required placeholder="例如：成都" /></label>
+            <label>
+              所在城市
+              <input name="city" required defaultValue={city} list="city-options" placeholder="选择或输入城市" />
+              <datalist id="city-options">{citySuggestions.map((item) => <option key={item} value={item} />)}</datalist>
+            </label>
             <label>
               学校
               <input name="university" required defaultValue={school} list="university-options" placeholder="例如：四川大学" />
