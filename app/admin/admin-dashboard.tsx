@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type CreatorSubmission = {
   id: number;
@@ -14,6 +14,7 @@ type CreatorSubmission = {
   workUrl: string;
   contact: string;
   createdAt: string;
+  media: Array<{ id: number; fileName: string; mediaType: "image" | "video"; size: number }>;
 };
 
 type RequestSubmission = {
@@ -127,7 +128,13 @@ export function AdminDashboard() {
       <AdminSection title="技能分享者入驻" count={submissions.creators.length}>
         {submissions.creators.map((item) => (
           <AdminCard key={item.id} title={`${item.name} · ${item.skill}`} meta={`${item.university} · ${item.majorGrade} · ${item.city}`} contact={item.contact} createdAt={item.createdAt} onApprove={() => moderate("creator", item.id, "published")} onReject={() => moderate("creator", item.id, "rejected")} disabled={loading}>
-            <p>{item.serviceIntro}</p><small>{item.mode}{item.workUrl ? ` · 作品：${item.workUrl}` : ""}</small>
+            <p>{item.serviceIntro}</p>
+            <small>{item.mode}{item.workUrl ? ` · 作品：${item.workUrl}` : ""}</small>
+            {!!item.media.length && (
+              <div className="admin-media-grid">
+                {item.media.map((media) => <AdminMediaPreview key={media.id} media={media} adminKey={adminKey} />)}
+              </div>
+            )}
           </AdminCard>
         ))}
       </AdminSection>
@@ -148,6 +155,44 @@ export function AdminDashboard() {
         ))}
       </AdminSection>
     </main>
+  );
+}
+
+function AdminMediaPreview({
+  media,
+  adminKey,
+}: {
+  media: { id: number; fileName: string; mediaType: "image" | "video"; size: number };
+  adminKey: string;
+}) {
+  const [source, setSource] = useState("");
+
+  useEffect(() => {
+    let objectUrl = "";
+    fetch(`/api/admin/media?id=${media.id}`, { headers: { "x-admin-key": adminKey } })
+      .then((response) => {
+        if (!response.ok) throw new Error("预览加载失败");
+        return response.blob();
+      })
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        setSource(objectUrl);
+      })
+      .catch(() => setSource(""));
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [adminKey, media.id]);
+
+  return (
+    <figure>
+      {source
+        ? media.mediaType === "video"
+          ? <video src={source} controls preload="metadata" />
+          : <img src={source} alt={media.fileName} />
+        : <div className="media-loading">正在加载预览…</div>}
+      <figcaption>{media.fileName} · {(media.size / 1024 / 1024).toFixed(1)}MB</figcaption>
+    </figure>
   );
 }
 

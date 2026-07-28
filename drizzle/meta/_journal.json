@@ -36,6 +36,13 @@
       "when": 1785154680648,
       "tag": "0004_next_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785206861643,
+      "tag": "0005_bent_night_thrasher",
+      "breakpoints": true
     }
   ]
 }

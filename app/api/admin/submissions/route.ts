@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "../../../../db";
-import { creatorProfiles, experiencePosts, skillRequests } from "../../../../db/schema";
+import { creatorMedia, creatorProfiles, experiencePosts, skillRequests } from "../../../../db/schema";
 
 type SubmissionKind = "creator" | "request" | "experience";
 
@@ -29,11 +29,28 @@ export async function GET(request: Request) {
 
   try {
     const db = getDb();
-    const [creators, requests, experiences] = await Promise.all([
+    const [creatorRows, requests, experiences] = await Promise.all([
       db.select().from(creatorProfiles).where(eq(creatorProfiles.status, "pending")).orderBy(desc(creatorProfiles.createdAt)).limit(100),
       db.select().from(skillRequests).where(eq(skillRequests.status, "pending")).orderBy(desc(skillRequests.createdAt)).limit(100),
       db.select().from(experiencePosts).where(eq(experiencePosts.status, "pending")).orderBy(desc(experiencePosts.createdAt)).limit(100),
     ]);
+
+    const media = creatorRows.length
+      ? await db
+          .select({
+            id: creatorMedia.id,
+            creatorProfileId: creatorMedia.creatorProfileId,
+            fileName: creatorMedia.fileName,
+            mediaType: creatorMedia.mediaType,
+            size: creatorMedia.size,
+          })
+          .from(creatorMedia)
+          .where(inArray(creatorMedia.creatorProfileId, creatorRows.map((creator) => creator.id)))
+      : [];
+    const creators = creatorRows.map((creator) => ({
+      ...creator,
+      media: media.filter((item) => item.creatorProfileId === creator.id),
+    }));
 
     return Response.json({ creators, requests, experiences });
   } catch (error) {
@@ -64,7 +81,21 @@ export async function PATCH(request: Request) {
 
     if (!table) return Response.json({ error: "审核类型无效" }, { status: 400 });
 
-    await getDb().update(table).set({ status }).where(eq(table.id, id));
+    const db = getDb();
+    await db.update(table).set({ status }).where(eq(table.id, id));
+
+    if (body.kind === "creator" && status === "rejected") {
+      const media = await db
+        .select({ id: creatorMedia.id, objectKey: creatorMedia.objectKey })
+        .from(creatorMedia)
+        .where(eq(creatorMedia.creatorProfileId, id));
+      const bucket = (env as unknown as { MEDIA?: R2Bucket }).MEDIA;
+      if (bucket && media.length) {
+        await Promise.all(media.map((item) => bucket.delete(item.objectKey).catch(() => undefined)));
+      }
+      await db.delete(creatorMedia).where(eq(creatorMedia.creatorProfileId, id));
+    }
+
     return Response.json({ ok: true });
   } catch (error) {
     console.error(error);

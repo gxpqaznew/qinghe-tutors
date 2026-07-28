@@ -20,6 +20,7 @@ type Creator = {
   workUrl?: string;
   source?: "published";
   schoolVerificationStatus?: string;
+  media?: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
 };
 
 type SkillRequest = {
@@ -246,6 +247,15 @@ async function postForm(url: string, form: HTMLFormElement) {
   if (!response.ok) throw new Error(result.error || "提交失败，请稍后再试");
 }
 
+async function postUploadForm(url: string, form: HTMLFormElement) {
+  const response = await fetch(url, {
+    method: "POST",
+    body: new FormData(form),
+  });
+  const result = (await response.json()) as { error?: string };
+  if (!response.ok) throw new Error(result.error || "提交失败，请稍后再试");
+}
+
 export function Marketplace() {
   const [role, setRole] = useState<Role | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -284,6 +294,7 @@ export function Marketplace() {
         serviceIntro: string;
         workUrl: string;
         schoolVerificationStatus: string;
+        media: Array<{ id: number; type: "image" | "video"; fileName: string; url: string }>;
       }> }) => {
         if (!result.profiles?.length) return;
         const publishedProfiles: Creator[] = result.profiles.map((profile, index) => ({
@@ -302,6 +313,7 @@ export function Marketplace() {
           workUrl: profile.workUrl,
           source: "published",
           schoolVerificationStatus: profile.schoolVerificationStatus,
+          media: profile.media,
         }));
         setListedCreators([...publishedProfiles, ...creators]);
       })
@@ -382,7 +394,7 @@ export function Marketplace() {
     setSubmitting(true);
     setFormError("");
     try {
-      await postForm("/api/creator-profiles", event.currentTarget);
+      await postUploadForm("/api/creator-profiles", event.currentTarget);
       localStorage.setItem("campus-creator-ready", "true");
       if (submittedSchool) {
         localStorage.setItem("campus-university", submittedSchool);
@@ -547,6 +559,14 @@ export function Marketplace() {
           <div className="creator-grid">
             {filteredCreators.map((creator) => (
               <article className="creator-card" key={creator.id} onClick={() => setActiveCreator(creator)}>
+                {creator.media?.[0] && (
+                  <div className="creator-cover">
+                    {creator.media[0].type === "video"
+                      ? <video src={creator.media[0].url} muted preload="metadata" />
+                      : <img src={creator.media[0].url} alt={`${creator.name}的作品展示`} />}
+                    <span>{creator.media.length} 个作品</span>
+                  </div>
+                )}
                 <div className="card-topline">
                   <span>
                     {school && creator.university === school
@@ -647,6 +667,21 @@ export function Marketplace() {
                 <h3>同学背景</h3>
                 <p>{activeCreator.major}；{activeCreator.proof}。</p>
                 {activeCreator.workUrl && <p><a href={activeCreator.workUrl} target="_blank" rel="noreferrer">查看公开作品或个人主页 →</a></p>}
+                {!!activeCreator.media?.length && (
+                  <>
+                    <h3>个人作品展示</h3>
+                    <div className="profile-media-grid">
+                      {activeCreator.media.map((media) => (
+                        <figure key={media.id}>
+                          {media.type === "video"
+                            ? <video src={media.url} controls preload="metadata" />
+                            : <img src={media.url} alt={media.fileName} />}
+                          <figcaption>{media.fileName}</figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  </>
+                )}
                 <h3>方式与参考价</h3>
                 <p>{activeCreator.mode} · {activeCreator.price}</p>
               </div>
@@ -804,6 +839,11 @@ function CreatorOnboarding({
             <label>服务方式<input name="mode" required placeholder="例如：线上交付 / 成都线下" /></label>
             <label className="full-field">技能与服务说明<textarea name="serviceIntro" required placeholder="你能具体帮助什么、如何完成、哪些事情不做…" /></label>
             <label className="full-field">公开作品或主页链接（选填）<input name="workUrl" type="url" placeholder="https://" /></label>
+            <label className="full-field">
+              图片 / 视频作品（选填）
+              <input name="media" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple />
+              <small className="upload-help">最多 4 个文件；图片单张不超过 8MB，视频单个不超过 80MB，总计不超过 100MB。上传后须经审核才会公开。</small>
+            </label>
             <label className="full-field">联系方式<input name="contact" required placeholder="手机号或微信号（不会直接公开）" /></label>
             <label className="consent-field full-field"><input type="checkbox" name="individualConfirmed" required /><span>我确认以个人身份入驻，只发布本人能够完成的服务，不代表机构、工作室、中介、代理或他人接单。</span></label>
             <label className="consent-field full-field"><input type="checkbox" name="consent" required /><span>我同意平台保存以上资料用于审核和需求连接，并承诺不提供代写、替考等违规服务。</span></label>

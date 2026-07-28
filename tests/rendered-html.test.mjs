@@ -90,3 +90,24 @@ test("publishes approved submissions while keeping contacts out of public endpoi
   assert.match(adminApi, /"published"/);
   assert.match(adminApi, /"rejected"/);
 });
+
+test("supports moderated image and video portfolios backed by private object storage", async () => {
+  const [marketplace, creatorApi, mediaApi, adminMediaApi, schema, hosting] = await Promise.all([
+    readFile(new URL("app/marketplace.tsx", root), "utf8"),
+    readFile(new URL("app/api/creator-profiles/route.ts", root), "utf8"),
+    readFile(new URL("app/api/creator-media/route.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/media/route.ts", root), "utf8"),
+    readFile(new URL("db/schema.ts", root), "utf8"),
+    readFile(new URL(".openai/hosting.json", root), "utf8"),
+  ]);
+
+  assert.match(marketplace, /name="media"/);
+  assert.match(marketplace, /image\/jpeg,image\/png,image\/webp,video\/mp4,video\/webm/);
+  assert.match(marketplace, /个人作品展示/);
+  assert.match(creatorApi, /最多上传 4 个作品文件/);
+  assert.match(creatorApi, /MEDIA\?:\s*R2Bucket/);
+  assert.match(mediaApi, /creatorProfiles\.status,\s*"published"/);
+  assert.match(adminMediaApi, /x-admin-key/);
+  assert.match(schema, /creatorMedia/);
+  assert.match(hosting, /"r2":\s*"MEDIA"/);
+});
